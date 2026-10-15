@@ -11,7 +11,7 @@ PawPal is being developed as a collaborative software engineering project.
 
 - **Backend:** Python, Django
 - **Frontend:** HTML, CSS, JavaScript
-- **Database:** SQLite (local development), SQL-based database (planned for AWS deployment)
+- **Database:** PostgreSQL
 - **Cloud Infrastructure:** Amazon Web Services (AWS)
 - **UI/UX Design:** Figma
 - **Version Control:** Git and GitHub
