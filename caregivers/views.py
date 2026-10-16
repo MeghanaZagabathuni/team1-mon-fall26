@@ -7,9 +7,7 @@ def create_caregiver_profile(request):
         form = CaregiverProfileForm(request.POST,request.FILES)
         if form.is_valid():
             form.save()
-            return redirect("home")
-        else:
-            pass
-            
+            return redirect("create_caregiver_profile")          
     else:
-        return render(request,"caregivers/create_profile.html",{"form":form})
+        form = CaregiverProfileForm()
+    return render(request,"caregivers/create_profile.html",{"form":form})
