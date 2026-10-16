@@ -15,6 +15,7 @@ PawPal is being developed as a collaborative software engineering project.
 - **Cloud Infrastructure:** Amazon Web Services (AWS)
 - **UI/UX Design:** Figma
 - **Version Control:** Git and GitHub
+- **Pillow** – Python image-processing library used with Django's `ImageField` to support profile photo uploads.
 
 ## Getting Started
 
