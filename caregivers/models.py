@@ -9,7 +9,7 @@ class CaregiverProfile(models.Model):
     profile_photo = models.ImageField(upload_to="caregiver/photos",blank=True,null=True)
     special_skills = models.TextField(blank=True)
     certifications = models.TextField(blank=True)
-    accepting_new_bookings = models.BooleanField(default=False)
+    accepting_new_bookings = models.BooleanField(default=True)
     profile_creation_date = models.DateTimeField(auto_now_add=True)
     profile_creation_date = models.DateTimeField(auto_now=True)
     supported_pet_types = models.ManyToManyField(
@@ -17,5 +17,27 @@ class CaregiverProfile(models.Model):
         blank=True
     )
 
-    
-    
+class ServiceType(models.Model):
+    name = models.CharField(max_length=100,unique=True)
+    description = models.TextField(blank=True)
+
+class CaregiverService(models.Model):
+    caregiver = models.ForeignKey(
+    "CaregiverProfile",
+    on_delete=models.CASCADE
+)
+    service_type = models.ForeignKey(
+    "ServiceType",
+    on_delete=models.CASCADE
+)
+    price = models.DecimalField(max_digits=8,decimal_places=2)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["caregiver", "service_type"],
+                name="unique_caregiver_service"
+            )
+        ]
