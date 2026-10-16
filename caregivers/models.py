@@ -12,24 +12,15 @@ class CaregiverProfile(models.Model):
     accepting_new_bookings = models.BooleanField(default=True)
     profile_creation_date = models.DateTimeField(auto_now_add=True)
     profile_creation_date = models.DateTimeField(auto_now=True)
-    supported_pet_types = models.ManyToManyField(
-        "pets.PetType",
-        blank=True
-    )
+    supported_pet_types = models.ManyToManyField("pets.PetType", blank=True)
 
 class ServiceType(models.Model):
     name = models.CharField(max_length=100,unique=True)
     description = models.TextField(blank=True)
 
 class CaregiverService(models.Model):
-    caregiver = models.ForeignKey(
-    "CaregiverProfile",
-    on_delete=models.CASCADE
-)
-    service_type = models.ForeignKey(
-    "ServiceType",
-    on_delete=models.CASCADE
-)
+    caregiver = models.ForeignKey("CaregiverProfile",on_delete=models.CASCADE)
+    service_type = models.ForeignKey("ServiceType", on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=8,decimal_places=2)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
