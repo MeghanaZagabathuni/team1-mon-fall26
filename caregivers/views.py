@@ -1,11 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .forms import CaregiverProfileForm
 
 def create_caregiver_profile(request):
     if request.method == "POST":
-        #handle
-        print()
+        form = CaregiverProfileForm(request.POST,request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        else:
+            pass
+            
     else:
-        #display an empty form
-        print()
+        return render(request,"caregivers/create_profile.html",{"form":form})
