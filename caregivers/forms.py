@@ -1,5 +1,5 @@
 from django import forms
-from .models import CaregiverProfile
+from .models import CaregiverProfile, CaregiverService
 
 class CaregiverProfileForm(forms.ModelForm):
     class Meta:
@@ -15,3 +15,15 @@ class CaregiverProfileForm(forms.ModelForm):
             "supported_pet_types", 
             "accepting_new_bookings",
             ]
+
+class CaregiverServicesForm(forms.ModelForm):
+    class Meta:
+        model = CaregiverService 
+        fields = [
+            "caregiver",
+            "service_type",
+            "price_unit",
+            "price",
+            "description",
+            "is_active"
+        ]

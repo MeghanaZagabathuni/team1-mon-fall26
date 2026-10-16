@@ -21,7 +21,20 @@ class ServiceType(models.Model):
 class CaregiverService(models.Model):
     caregiver = models.ForeignKey("CaregiverProfile",on_delete=models.CASCADE)
     service_type = models.ForeignKey("ServiceType", on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=8,decimal_places=2)
+    PRICE_UNITS = [
+        ("hour", "Per Hour"),
+        ("night", "Per Night"),
+        ("visit", "Per Visit / Check-in"),
+        ("day", "Per Day"),
+        ("walk", "Per Walk"),
+    ]
+
+    price_unit = models.CharField(
+        max_length=10,
+        choices=PRICE_UNITS,
+        default="hour"
+    )
+    price = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
 
