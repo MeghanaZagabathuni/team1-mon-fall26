@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 
 
 class Booking(models.Model):
@@ -11,12 +12,9 @@ class Booking(models.Model):
         DECLINED = "declined", "Declined"
         CANCELLED = "cancelled", "Cancelled"
 
-    # Nullable until the accounts app links pets/caregivers to users.
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
         related_name="bookings",
     )
     pet = models.ForeignKey(
@@ -50,3 +48,6 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking #{self.pk} ({self.get_status_display()})"
+
+    def get_absolute_url(self):
+        return reverse("bookings:booking_detail", args=[self.pk])
