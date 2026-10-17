@@ -1,32 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Booking Request</title>
-</head>
-<body>
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    <h1>Booking Request #{{ booking.pk }}</h1>
-    <h2>Status</h2>
-    <p>{{ booking.get_status_display }}</p>
-    <h2>Pet</h2>
-    <p>{{ booking.pet.name }}</p>
-    <h2>Caregiver</h2>
-    <p>{{ booking.caregiver.name }}</p>
-    <h2>Service</h2>
-    <p>{{ booking.service_type.name }}</p>
-    <h2>When</h2>
-    <p>{{ booking.start_time }} &ndash; {{ booking.end_time }}</p>
-    {% if booking.notes %}
-    <h2>Request Details</h2>
-    <p>{{ booking.notes|linebreaksbr }}</p>
-    {% endif %}
-    <p><a href="{% url 'bookings:booking_list' %}">Back to my bookings</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}{{ booking.pet.name }} · {{ booking.service_type.name }} · PawPal{% endblock %}
+
+{% block main_class %}page page-medium{% endblock %}
+
+{% block content %}
+  <a class="back-link" href="{% url 'bookings:booking_list' %}"><span aria-hidden="true">&lsaquo;</span> Back to my requests</a>
+
+  <article class="card booking-detail">
+    <header class="booking-detail-header theme-{{ booking.pet.theme }}">
+      <span class="booking-avatar booking-avatar-large theme-{{ booking.pet.theme }}" aria-hidden="true">{{ booking.pet.name|first|upper }}</span>
+      <div>
+        <p class="eyebrow">Booking request #{{ booking.pk }}</p>
+        <h1>{{ booking.pet.name }} · {{ booking.service_type.name }}</h1>
+      </div>
+      {% include "bookings/partials/status_pill.html" with status=booking.status label=booking.get_status_display %}
+    </header>
+
+    <div class="booking-detail-body">
+      <dl class="info-tiles">
+        <div class="tile tile-name"><dt>Caregiver</dt><dd>{{ booking.caregiver.name }}</dd></div>
+        <div class="tile tile-type"><dt>Starts</dt><dd>{{ booking.start_time|date:"D, M j, g:i A" }}</dd></div>
+        <div class="tile tile-age"><dt>Ends</dt><dd>{{ booking.end_time|date:"D, M j, g:i A" }}</dd></div>
+      </dl>
+
+      <h2>Request details</h2>
+      <p>{{ booking.notes|default:"No extra details added."|linebreaksbr }}</p>
+
+      {% if booking.status == "pending" %}
+        <p class="booking-note muted">Sent {{ booking.created_at|date:"M j, g:i A" }}. {{ booking.caregiver.name }} will accept or decline your request.</p>
+      {% endif %}
+    </div>
+  </article>
+{% endblock %}

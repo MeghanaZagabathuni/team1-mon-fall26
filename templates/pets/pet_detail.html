@@ -41,6 +41,6 @@
       <h2>Need someone to look after {{ pet.name }}?</h2>
       <p>Find a caregiver and send a booking request.</p>
     </div>
-    <a class="btn btn-light" href="{{ find_caregivers_url|default:'#' }}">Find a caregiver</a>
+    <a class="btn btn-light" href="{% url 'bookings:booking_create' %}?pet={{ pet.pk }}">Request care</a>
   </section>
 {% endblock %}
