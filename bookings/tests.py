@@ -18,16 +18,23 @@ FMT = "%Y-%m-%dT%H:%M"
 class BookingTestData(TestCase):
     @classmethod
     def setUpTestData(cls):
-        dog = PetType.objects.create(name="Dog")
-        cls.pet = Pet.objects.create(name="Biscuit", pet_type=dog)
-        cls.caregiver = CaregiverProfile.objects.create(
-            name="Jamie", service_area="Brooklyn"
+        User = get_user_model()
+        cls.owner = User.objects.create_user("owner", password="pw-12345!")
+        cls.other_owner = User.objects.create_user("other", password="pw-12345!")
+        dog = PetType.objects.get_or_create(name="Dog")[0]
+        cls.pet = Pet.objects.create(owner=cls.owner, name="Biscuit", pet_type=dog)
+        cls.other_pet = Pet.objects.create(
+            owner=cls.other_owner, name="Rex", pet_type=dog
         )
-        cls.walk = ServiceType.objects.create(name="Dog Walking")
-        cls.sitting = ServiceType.objects.create(name="Pet Sitting")
+        cls.caregiver = CaregiverProfile.objects.create(
+            name="Chloe Shih", service_area="Brooklyn"
+        )
+        # Created by the 0002 data migration.
+        cls.walk = ServiceType.objects.get(name="Dog walking")
+        cls.sitting = ServiceType.objects.get(name="Pet sitting")
 
     def form_data(self, **overrides):
-        start = timezone.now() + timedelta(days=2)
+        start = timezone.localtime() + timedelta(days=2)
         data = {
             "pet": self.pet.pk,
             "caregiver": self.caregiver.pk,
@@ -39,11 +46,11 @@ class BookingTestData(TestCase):
         data.update(overrides)
         return data
 
-    def make_booking(self, owner=None, **fields):
+    def make_booking(self, owner=None, pet=None, **fields):
         start = timezone.now() + timedelta(days=1)
         defaults = {
-            "owner": owner,
-            "pet": self.pet,
+            "owner": owner or self.owner,
+            "pet": pet or self.pet,
             "caregiver": self.caregiver,
             "service_type": self.walk,
             "start_time": start,
@@ -55,44 +62,65 @@ class BookingTestData(TestCase):
 
 class BookingModelTests(BookingTestData):
     def test_new_booking_defaults_to_pending(self):
-        booking = self.make_booking()
-        self.assertEqual(booking.status, Booking.Status.PENDING)
+        self.assertEqual(self.make_booking().status, Booking.Status.PENDING)
+
+    def test_default_service_types_exist(self):
+        names = set(ServiceType.objects.values_list("name", flat=True))
+        self.assertTrue({"Dog walking", "Pet sitting", "Drop-in visit"} <= names)
 
 
 class BookingRequestFormTests(BookingTestData):
-    def test_valid_request(self):
-        self.assertTrue(BookingRequestForm(data=self.form_data()).is_valid())
+    def make_form(self, **overrides):
+        return BookingRequestForm(data=self.form_data(**overrides), owner=self.owner)
 
-    def test_pet_caregiver_and_service_are_required(self):
-        form = BookingRequestForm(
-            data=self.form_data(pet="", caregiver="", service_type="")
+    def test_valid_request(self):
+        self.assertTrue(self.make_form().is_valid())
+
+    def test_only_owners_pets_are_offered(self):
+        form = BookingRequestForm(owner=self.owner)
+        self.assertEqual(list(form.fields["pet"].queryset), [self.pet])
+
+    def test_cannot_book_someone_elses_pet(self):
+        form = self.make_form(pet=self.other_pet.pk)
+        self.assertFalse(form.is_valid())
+        self.assertIn("pet", form.errors)
+
+    def test_pet_caregiver_service_and_times_are_required(self):
+        form = self.make_form(
+            pet="", caregiver="", service_type="", start_time="", end_time=""
         )
         self.assertFalse(form.is_valid())
-        for field in ("pet", "caregiver", "service_type"):
+        for field in ("pet", "caregiver", "service_type", "start_time", "end_time"):
             self.assertIn(field, form.errors)
 
     def test_start_time_must_be_in_future(self):
-        past = timezone.now() - timedelta(days=1)
-        form = BookingRequestForm(
-            data=self.form_data(
-                start_time=past.strftime(FMT),
-                end_time=(past + timedelta(hours=1)).strftime(FMT),
-            )
+        past = timezone.localtime() - timedelta(hours=1)
+        form = self.make_form(
+            start_time=past.strftime(FMT),
+            end_time=(past + timedelta(hours=2)).strftime(FMT),
         )
         self.assertFalse(form.is_valid())
         self.assertIn("start_time", form.errors)
 
+    def test_times_are_entered_in_local_time(self):
+        # A time later today in New York must be accepted (not read as UTC).
+        soon = timezone.localtime() + timedelta(minutes=30)
+        form = self.make_form(
+            start_time=soon.strftime(FMT),
+            end_time=(soon + timedelta(hours=1)).strftime(FMT),
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
     def test_end_time_must_be_after_start(self):
         data = self.form_data()
-        data["end_time"] = data["start_time"]
-        form = BookingRequestForm(data=data)
+        form = self.make_form(end_time=data["start_time"])
         self.assertFalse(form.is_valid())
         self.assertIn("end_time", form.errors)
 
     def test_caregiver_not_accepting_bookings_cannot_be_selected(self):
         self.caregiver.accepting_new_bookings = False
         self.caregiver.save()
-        form = BookingRequestForm(data=self.form_data())
+        form = self.make_form()
         self.assertFalse(form.is_valid())
         self.assertIn("caregiver", form.errors)
 
@@ -100,7 +128,7 @@ class BookingRequestFormTests(BookingTestData):
         with mock.patch(
             "bookings.forms.offered_service_type_ids", return_value={self.sitting.pk}
         ):
-            form = BookingRequestForm(data=self.form_data())
+            form = self.make_form()
             self.assertFalse(form.is_valid())
             self.assertIn("service_type", form.errors)
 
@@ -108,94 +136,108 @@ class BookingRequestFormTests(BookingTestData):
         with mock.patch(
             "bookings.forms.offered_service_type_ids", return_value={self.walk.pk}
         ):
-            self.assertTrue(BookingRequestForm(data=self.form_data()).is_valid())
+            self.assertTrue(self.make_form().is_valid())
 
 
 class BookingCreateViewTests(BookingTestData):
-    def test_get_shows_form(self):
-        response = self.client.get(reverse("bookings:booking_create"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Request Care")
+    url = reverse("bookings:booking_create")
+
+    def test_login_required(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login/", response["Location"])
+
+    def test_get_shows_form_with_own_pets_only(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(self.url)
+        self.assertContains(response, "Request care")
         self.assertContains(response, "Biscuit")
-        self.assertContains(response, "Jamie")
+        self.assertContains(response, "Chloe Shih")
+        self.assertContains(response, "Dog walking")
+        self.assertNotContains(response, "Rex")
 
-    def test_caregiver_can_be_preselected(self):
+    def test_owner_without_pets_is_asked_to_add_one(self):
+        self.client.force_login(get_user_model().objects.create_user("new"))
+        response = self.client.get(self.url)
+        self.assertContains(response, "Add a pet first")
+
+    def test_caregiver_and_pet_can_be_preselected(self):
+        self.client.force_login(self.owner)
         response = self.client.get(
-            reverse("bookings:booking_create"), {"caregiver": self.caregiver.pk}
+            self.url, {"caregiver": self.caregiver.pk, "pet": self.pet.pk}
         )
-        self.assertEqual(
-            response.context["form"].initial["caregiver"], str(self.caregiver.pk)
-        )
+        initial = response.context["form"].initial
+        self.assertEqual(initial["caregiver"], str(self.caregiver.pk))
+        self.assertEqual(initial["pet"], str(self.pet.pk))
 
-    def test_post_saves_pending_booking_and_shows_it(self):
-        response = self.client.post(
-            reverse("bookings:booking_create"), self.form_data(), follow=True
-        )
+    def test_post_saves_pending_booking_and_confirms(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(self.url, self.form_data(), follow=True)
         booking = Booking.objects.get()
         self.assertEqual(booking.status, Booking.Status.PENDING)
+        self.assertEqual(booking.owner, self.owner)
         self.assertEqual(booking.pet, self.pet)
         self.assertEqual(booking.caregiver, self.caregiver)
         self.assertEqual(booking.service_type, self.walk)
-        self.assertRedirects(
-            response, reverse("bookings:booking_detail", args=[booking.pk])
-        )
+        self.assertRedirects(response, booking.get_absolute_url())
+        self.assertContains(response, "Request sent to Chloe Shih")
         self.assertContains(response, "Pending")
 
-    def test_post_by_signed_in_user_sets_owner(self):
-        user = get_user_model().objects.create_user("owner", password="pw-12345!")
-        self.client.force_login(user)
-        self.client.post(reverse("bookings:booking_create"), self.form_data())
-        self.assertEqual(Booking.objects.get().owner, user)
-
     def test_invalid_post_saves_nothing(self):
-        response = self.client.post(
-            reverse("bookings:booking_create"), self.form_data(pet="")
-        )
+        self.client.force_login(self.owner)
+        response = self.client.post(self.url, self.form_data(pet=""))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose one of your pets.")
         self.assertFalse(Booking.objects.exists())
 
 
 class BookingListAndDetailViewTests(BookingTestData):
-    def setUp(self):
-        User = get_user_model()
-        self.alice = User.objects.create_user("alice", password="pw-12345!")
-        self.bob = User.objects.create_user("bob", password="pw-12345!")
+    def test_list_login_required(self):
+        response = self.client.get(reverse("bookings:booking_list"))
+        self.assertEqual(response.status_code, 302)
 
     def test_empty_list(self):
+        self.client.force_login(self.owner)
         response = self.client.get(reverse("bookings:booking_list"))
-        self.assertContains(response, "You have not requested any bookings yet.")
+        self.assertContains(response, "No requests yet")
 
     def test_list_shows_submitted_booking(self):
         self.make_booking()
+        self.client.force_login(self.owner)
         response = self.client.get(reverse("bookings:booking_list"))
-        self.assertContains(response, "Biscuit")
-        self.assertContains(response, "Jamie")
-        self.assertContains(response, "Dog Walking")
+        self.assertContains(response, "Biscuit · Dog walking")
+        self.assertContains(response, "Chloe Shih")
         self.assertContains(response, "Pending")
 
-    def test_signed_in_owner_sees_only_their_bookings(self):
-        self.make_booking(owner=self.alice, notes="alice")
-        bob_booking = self.make_booking(owner=self.bob, service_type=self.sitting)
-        self.client.force_login(self.alice)
+    def test_owner_sees_only_their_bookings(self):
+        self.make_booking()
+        other = self.make_booking(owner=self.other_owner, pet=self.other_pet)
+        self.client.force_login(self.owner)
         response = self.client.get(reverse("bookings:booking_list"))
         self.assertEqual(len(response.context["bookings"]), 1)
-        self.assertNotContains(response, "Pet Sitting")
-        detail = self.client.get(
-            reverse("bookings:booking_detail", args=[bob_booking.pk])
-        )
+        self.assertNotContains(response, "Rex")
+        detail = self.client.get(other.get_absolute_url())
         self.assertEqual(detail.status_code, 404)
-
-    def test_anonymous_visitor_cannot_see_owned_bookings(self):
-        booking = self.make_booking(owner=self.alice)
-        response = self.client.get(
-            reverse("bookings:booking_detail", args=[booking.pk])
-        )
-        self.assertEqual(response.status_code, 404)
 
     def test_detail_shows_request_details(self):
         booking = self.make_booking(notes="Feed at 6pm")
-        response = self.client.get(
-            reverse("bookings:booking_detail", args=[booking.pk])
-        )
+        self.client.force_login(self.owner)
+        response = self.client.get(booking.get_absolute_url())
         self.assertContains(response, "Feed at 6pm")
         self.assertContains(response, "Pending")
+        self.assertContains(response, "Chloe Shih")
+
+
+class BookingPanelTests(BookingTestData):
+    def test_my_pets_page_shows_latest_requests(self):
+        self.make_booking()
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse("pets:list"))
+        self.assertContains(response, "My booking requests")
+        self.assertContains(response, "Biscuit · Dog walking")
+        self.assertContains(response, reverse("bookings:booking_create"))
+
+    def test_nav_links_to_my_requests(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse("pets:list"))
+        self.assertContains(response, f'href="{reverse("bookings:booking_list")}"')
