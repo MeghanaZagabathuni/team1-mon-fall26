@@ -1350,3 +1350,286 @@ img.pet-initial-large {
     }
 }
 
+
+/* Delete Service */
+
+.service-delete-summary {
+    margin: 24px 0;
+    padding: 18px;
+    border: 1px solid #f0d8cc;
+    border-radius: 14px;
+    background: #fff8f4;
+}
+
+.service-delete-summary p {
+    margin-top: 8px;
+    color: #80695f;
+}
+
+.btn-danger {
+    background: #a43c45;
+    color: white;
+    border: 1px solid #a43c45;
+    border-radius: 999px;
+    padding: 12px 22px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background: #882c35;
+}
+
+.btn-outline-danger {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 22px;
+    border: 1px solid #c7797e;
+    border-radius: 999px;
+    color: #a43c45;
+    background: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-outline-danger:hover {
+    background: #fff0f0;
+}
+
+
+/* ==========================================
+   Caregiver Service Management
+   ========================================== */
+
+.service-page {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 30px 24px 80px;
+}
+
+.service-back-link {
+    display: inline-block;
+    margin-bottom: 28px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.service-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.service-eyebrow {
+    color: #8c7469;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.service-page-header h1 {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+
+.service-page-description {
+    font-size: 14px;
+    color: #806e66;
+}
+
+.service-management-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.service-management-card {
+    display: flex;
+    flex-direction: column;
+    padding: 26px;
+    min-width: 0;
+}
+
+.service-management-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.service-management-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    background: #fce5d9;
+    border-radius: 16px;
+    font-size: 22px;
+}
+
+.service-management-card h2 {
+    font-size: 23px;
+    margin-bottom: 10px;
+}
+
+.service-management-price {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.service-management-description {
+    color: #8b7970;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    flex-grow: 1;
+}
+
+.service-management-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.service-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.service-status-active {
+    background: #d9f2e5;
+    color: #216b47;
+}
+
+.service-status-draft {
+    background: #fff0c9;
+    color: #8a6119;
+}
+
+.service-status-inactive {
+    background: #f3e7e3;
+    color: #856d65;
+}
+
+.service-empty-state {
+    padding: 50px 24px;
+    text-align: center;
+}
+
+.service-empty-state p {
+    margin: 12px 0 22px;
+    color: #806e66;
+}
+
+@media (max-width: 700px) {
+    .service-management-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .service-page-header h1 {
+        font-size: 30px;
+    }
+}
+
+
+/* ==========================================
+   Delete Service Confirmation
+   ========================================== */
+
+.service-delete-page {
+    max-width: 760px;
+    padding-top: 30px;
+}
+
+.service-delete-card {
+    padding: 36px 40px 40px;
+    border-radius: 24px;
+}
+
+.service-delete-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 22px;
+    border-radius: 16px;
+    background: #ffe4dc;
+    color: #a43c45;
+    font-size: 27px;
+    font-weight: 800;
+}
+
+.service-delete-card h1 {
+    font-size: 32px;
+    margin: 8px 0 14px;
+}
+
+.service-delete-description {
+    color: #806e66;
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 520px;
+}
+
+.service-delete-card .service-delete-summary {
+    margin: 28px 0;
+    padding: 22px 24px;
+    border: 1px solid #f0d8cc;
+    border-radius: 16px;
+    background: #fff8f4;
+}
+
+.service-delete-card .service-delete-summary strong {
+    display: block;
+    font-size: 17px;
+}
+
+.service-delete-card .service-delete-summary p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #806e66;
+}
+
+.service-delete-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.service-delete-actions .btn {
+    min-height: 44px;
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .service-delete-card {
+        padding: 26px 22px;
+    }
+
+    .service-delete-card h1 {
+        font-size: 27px;
+    }
+}
+
+

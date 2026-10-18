@@ -33,29 +33,62 @@ def create_caregiver_profile(request):
         {"form": form}
     )
 
+
 def edit_caregiver_profile(request, pk):
     caregiver = get_object_or_404(CaregiverProfile, pk=pk)
 
     if request.method == "POST":
-        form = CaregiverProfileForm(
-            request.POST,
-            request.FILES,
-            instance=caregiver
-        )
+        form = CaregiverProfileForm(request.POST, request.FILES, instance=caregiver)
 
         if form.is_valid():
+            # Keep your existing service update logic here!
             form.save()
+
             return redirect("caregiver", pk=caregiver.pk)
 
     else:
-        existing_services = CaregiverService.objects.filter(
-            caregiver=caregiver
-        ).values_list("service_type_id", flat=True)
-
         form = CaregiverProfileForm(
             instance=caregiver,
-            initial={"selected_services": existing_services}
+            initial={
+                "selected_services": CaregiverService.objects.filter(
+                    caregiver=caregiver
+                ).values_list("service_type_id", flat=True)
+            }
         )
+
+    return render(
+        request,
+        "caregivers/create_profile.html",
+        {
+            "form": form,
+            "caregiver": caregiver,
+        }
+    )
+
+
+    
+def delete_caregiver_service(request, pk, service_id):
+    caregiver = get_object_or_404(CaregiverProfile, pk=pk)
+
+    service = get_object_or_404(
+        CaregiverService,
+        pk=service_id,
+        caregiver=caregiver
+    )
+
+    if request.method == "POST":
+        service.delete()
+        return redirect("services", pk=caregiver.pk)
+
+    return render(
+        request,
+        "caregivers/delete_service.html",
+        {
+            "caregiver": caregiver,
+            "service": service,
+        }
+    )
+
 
     return render(
         request,
