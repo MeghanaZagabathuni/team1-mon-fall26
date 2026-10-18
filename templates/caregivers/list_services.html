@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Caregiver Services</title>
+</head>
+<body>
+
+    <h1>Services Offered</h1>
+
+    <a href="{% url 'add_caregiver_service' caregiver.pk %}">
+        + Add New Service
+    </a>
+
+    {% for service in services %}
+        <h2>{{ service.name|default:service.service_type.name }}</h2>
+        <p>{{ service.description }}</p>
+        <p>${{ service.price }} / {{ service.get_price_unit_display }}</p>
+
+        {% if service.is_active %}
+            <p>Available</p>
+        {% else %}
+            <p>Currently Unavailable</p>
+        {% endif %}
+
+    {% empty %}
+        <p>No services listed yet.</p>
+    {% endfor %}
+
+</body>
+</html>

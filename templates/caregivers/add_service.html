@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Service</title>
+</head>
+<body>
+
+    <h1>Add a Service</h1>
+    <p>Caregiver: {{ caregiver.name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Save Service</button>
+    </form>
+
+    <a href="{% url 'services' caregiver.pk %}">
+        Back to Services
+    </a>
+
+</body>
+</html>
