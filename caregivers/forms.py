@@ -27,8 +27,33 @@ class CaregiverProfileForm(forms.ModelForm):
             "bio": forms.Textarea(attrs={"rows": 3}),
             "special_skills": forms.Textarea(attrs={"rows": 3}),
             "certifications": forms.Textarea(attrs={"rows": 3}),
-            "supported_pet_types": forms.CheckboxSelectMultiple(),
         }
+
+    def edit_caregiver_profile(request, pk):
+        caregiver = get_object_or_404(CaregiverProfile, pk=pk)
+
+        if request.method == "POST":
+            form = CaregiverProfileForm(
+                request.POST,
+                request.FILES,
+                instance=caregiver
+            )
+
+            if form.is_valid():
+                form.save()
+                return redirect("caregiver_profile_detail", pk=caregiver.pk)
+
+        else:
+            form = CaregiverProfileForm(instance=caregiver)
+
+        return render(
+            request,
+            "caregivers/edit_profile.html",
+            {
+                "form": form,
+                "caregiver": caregiver,
+            }
+        )
 
 class CaregiverServicesForm(forms.ModelForm):
     class Meta:
@@ -40,3 +65,4 @@ class CaregiverServicesForm(forms.ModelForm):
             "description",
             "is_active"
         ]
+

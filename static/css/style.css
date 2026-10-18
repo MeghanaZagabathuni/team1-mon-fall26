@@ -1191,3 +1191,28 @@ img.pet-initial-large {
     font-size: 28px;
   }
 }
+.hero .home-hero-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    width: max-content;
+    max-width: 100%;
+}
+
+.hero .home-hero-actions > .btn {
+    display: inline-flex;
+    width: auto;
+    flex: 0 0 auto;
+    margin: 0;
+}
+.caregiver-profile-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.caregiver-profile-actions .btn {
+    text-decoration: none;
+}
