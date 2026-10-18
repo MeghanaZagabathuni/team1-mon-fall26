@@ -76,3 +76,18 @@ class CaregiverServicesForm(forms.ModelForm):
             }),
         }
 
+def clean(self):
+    cleaned_data = super().clean()
+
+    is_active = cleaned_data.get("is_active")
+    price = cleaned_data.get("price")
+
+    if is_active and price is None:
+        self.add_error(
+            "price",
+            "Please set a price before activating this service."
+        )
+
+    return cleaned_data
+
+

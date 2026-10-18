@@ -131,10 +131,27 @@ def add_caregiver_service(request, pk):
     if request.method == "POST":
         form = CaregiverServicesForm(request.POST)
 
+        
         if form.is_valid():
-            service = form.save(commit=False)
-            service.caregiver = caregiver
-            service.save()
+            service_type = form.cleaned_data["service_type"]
+
+            already_exists = CaregiverService.objects.filter(
+                caregiver=caregiver,
+                service_type=service_type
+            ).exists()
+
+            if already_exists:
+                form.add_error(
+                    "service_type",
+                    "You already have this service! Please edit your existing listing instead."
+                )
+            else:
+                service = form.save(commit=False)
+                service.caregiver = caregiver
+                service.save()
+
+                return redirect("services", pk=caregiver.pk)
+
 
             return redirect("services", pk=caregiver.pk)
 

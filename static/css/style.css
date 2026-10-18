@@ -1633,3 +1633,75 @@ img.pet-initial-large {
 }
 
 
+/* ==========================================
+   Add / Edit Service Page Fixes
+   ========================================== */
+
+.service-page:has(.service-editor-card) {
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 30px 24px 80px;
+}
+
+/* Keep the back link on its own line */
+.service-page:has(.service-editor-card) > .service-back-link {
+    display: inline-flex;
+    width: fit-content;
+    margin-bottom: 26px;
+}
+
+/* Stack the heading and description */
+.service-page:has(.service-editor-card) .service-page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.service-page:has(.service-editor-card) .service-page-header h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.service-page:has(.service-editor-card) .service-page-description {
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+/* Restore padding inside the form card */
+.service-editor-card {
+    padding: 32px 36px 36px;
+    border-radius: 22px;
+}
+
+.service-editor-card h2 {
+    margin-bottom: 6px;
+    font-size: 24px;
+}
+
+.service-editor-card .service-form-fields {
+    margin-top: 26px;
+}
+
+/* Keep form labels comfortably separated */
+.service-editor-card .service-form-fields {
+    gap: 22px;
+}
+
+.service-editor-card .service-form-fields p {
+    gap: 9px;
+}
+
+@media (max-width: 600px) {
+    .service-editor-card {
+        padding: 24px 20px;
+    }
+
+    .service-page:has(.service-editor-card) .service-page-header h1 {
+        font-size: 30px;
+    }
+}
+
+
