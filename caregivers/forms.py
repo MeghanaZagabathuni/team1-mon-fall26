@@ -65,4 +65,14 @@ class CaregiverServicesForm(forms.ModelForm):
             "description",
             "is_active"
         ]
+        widgets = {
+            "description": forms.Textarea(attrs={
+                "rows": 3,
+                "placeholder": "Tell pet owners what's included in this service..."
+            }),
+            "price": forms.NumberInput(attrs={
+                "step": "0.01",
+                "placeholder": "e.g. 25.00"
+            }),
+        }
 

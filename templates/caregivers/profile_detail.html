@@ -71,29 +71,51 @@
         </div>
       </article>
 
-      <section class="caregiver-public-card caregiver-section-body">
-        <h2>Services</h2>
-        <div class="caregiver-service-grid">
-          {% for service in services %}
-            <div class="caregiver-service-item">
-              <span class="caregiver-service-icon">🐾</span>
-              <div>
-                <div class="caregiver-service-name">{{ service.service_type.name }}</div>
-                <div class="caregiver-service-meta">
-                  {% if service.is_active and service.price != None %}
-                    ${{ service.price }} / {{ service.get_price_unit_display }}
-                  {% else %}
-                    Not available for booking yet
-                  {% endif %}
-                </div>
-              </div>
-            </div>
-          {% empty %}
-            <p class="caregiver-text">No services listed yet.</p>
-          {% endfor %}
-        </div>
-      </section>
+      <section class="card caregiver-section">
+    <h2>Services</h2>
 
+    
+<!-- Services selected during profile creation -->
+<section class="card caregiver-section">
+    <h2>Services Provided</h2>
+
+    <div class="caregiver-provided-services">
+        {% for service in provided_services %}
+            <span class="caregiver-provided-chip">
+                {{ service.service_type.name }}
+            </span>
+        {% empty %}
+            <p class="muted">No services selected yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="card caregiver-section">
+    <h2>Service Listings</h2>
+
+    <div class="caregiver-service-grid">
+        {% for service in service_listings %}
+            <div class="caregiver-service-item">
+                <span class="caregiver-service-icon">🐾</span>
+
+                <div>
+                    <strong>{{ service.service_type.name }}</strong>
+
+                    <p class="service-price">
+                        ${{ service.price }} /
+                        {{ service.get_price_unit_display }}
+                    </p>
+                </div>
+            </div>
+        {% empty %}
+            <p class="muted">
+                No active service listings yet.
+            </p>
+        {% endfor %}
+    </div>
+</section>
+
+    </section>
       <section class="caregiver-public-card caregiver-section-body">
         <h2>Happy to care for</h2>
         <div class="caregiver-tags">

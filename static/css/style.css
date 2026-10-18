@@ -1216,3 +1216,137 @@ img.pet-initial-large {
 .caregiver-profile-actions .btn {
     text-decoration: none;
 }
+
+/* Caregiver service form */
+.service-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 24px 0;
+}
+
+.service-form-fields p {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+}
+
+.service-form-fields label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #211c1c;
+}
+
+.service-form-fields input:not([type="checkbox"]),
+.service-form-fields select,
+.service-form-fields textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #edcfc3;
+    border-radius: 12px;
+    background: #fffaf8;
+    font: inherit;
+}
+
+.service-form-fields textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.service-form-fields input:focus,
+.service-form-fields select:focus,
+.service-form-fields textarea:focus {
+    outline: 2px solid #a88bd4;
+    outline-offset: 1px;
+}
+
+.service-form-fields p:has(input[type="checkbox"]) {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.service-form-fields input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #6a4ca6;
+}
+
+
+/* Caregiver profile: service sections */
+
+.caregiver-section {
+    padding: 24px;
+    border: 1px solid #f0d8cc;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 4px 0 #f0dcd3;
+    margin-bottom: 18px;
+}
+
+.caregiver-section h2 {
+    margin: 0 0 18px;
+    font-size: 22px;
+}
+
+/* Service type bubbles */
+
+.caregiver-provided-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.caregiver-provided-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 15px;
+    border: 1px solid #f0d0c2;
+    border-radius: 999px;
+    background: #fff8f4;
+    font-size: 13px;
+    font-weight: 600;
+    color: #241b19;
+}
+
+/* Priced service listing cards */
+
+.caregiver-service-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.caregiver-service-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #f0d8cc;
+    border-radius: 15px;
+    background: #fff8f4;
+}
+
+.caregiver-service-item > div {
+    min-width: 0;
+}
+
+.caregiver-service-item strong {
+    display: block;
+    font-size: 14px;
+}
+
+.caregiver-service-item .service-price {
+    margin: 5px 0 0;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .caregiver-service-grid {
+        grid-template-columns: 1fr;
+    }
+}

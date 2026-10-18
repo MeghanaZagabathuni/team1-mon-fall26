@@ -1,31 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Caregiver Services</title>
-</head>
-<body>
 
-    <h1>Services Offered</h1>
+{% extends "base.html" %}
 
-    <a href="{% url 'add_caregiver_service' caregiver.pk %}">
-        + Add New Service
-    </a>
+{% block title %}Manage Services | PawPal{% endblock %}
 
-    {% for service in services %}
-        <h2>{{ service.name|default:service.service_type.name }}</h2>
-        <p>{{ service.description }}</p>
-        <p>${{ service.price }} / {{ service.get_price_unit_display }}</p>
+{% block content %}
+<div class="service-page">
 
-        {% if service.is_active %}
-            <p>Available</p>
-        {% else %}
-            <p>Currently Unavailable</p>
-        {% endif %}
+    <div class="service-page-header">
+        <a class="service-back-link"
+           href="{% url 'caregiver' caregiver.pk %}">
+            ← Back to My Profile
+        </a>
 
-    {% empty %}
-        <p>No services listed yet.</p>
-    {% endfor %}
+        <p class="service-eyebrow">CAREGIVER DASHBOARD</p>
 
-</body>
-</html>
+        <div class="service-title-row">
+            <div>
+                <h1>My Services</h1>
+                <p class="service-subtitle">
+                    Manage your offerings, pricing, and availability.
+                </p>
+            </div>
+
+            <a class="btn btn-dark service-add-button"
+               href="{% url 'add_caregiver_service' caregiver.pk %}">
+                + Add Service
+            </a>
+        </div>
+    </div>
+
+    <div class="service-list">
+
+        {% for service in services %}
+
+        <article class="card service-list-card">
+
+            <div class="service-list-card-top">
+                <div class="service-list-heading">
+                    <span class="service-list-icon">🐾</span>
+
+                    <div>
+                        <h2>{{ service.service_type.name }}</h2>
+
+                        {% if service.price != None %}
+                            <p class="service-price">
+                                ${{ service.price }} /
+                                {{ service.get_price_unit_display }}
+                            </p>
+                        {% else %}
+                            <p class="service-price service-price-empty">
+                                Price not set
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if service.is_active and service.price != None %}
+                    <span class="service-status service-status-active">
+                        Active
+                    </span>
+                {% elif service.price == None %}
+                    <span class="service-status service-status-draft">
+                        Draft
+                    </span>
+                {% else %}
+                    <span class="service-status service-status-inactive">
+                        Inactive
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if service.description %}
+                <p class="service-description">
+                    {{ service.description }}
+                </p>
+            {% else %}
+                <p class="service-description muted">
+                    No description added yet.
+                </p>
+            {% endif %}
+
+            <div class="service-list-actions">
+                <a class="btn btn-dark"
+                   href="{% url 'edit_caregiver_service' caregiver.pk service.pk %}">
+                    Edit Service
+                </a>
+            </div>
+
+        </article>
+
+        {% empty %}
+
+        <section class="card service-empty-state">
+            <div class="service-empty-icon">🐾</div>
+            <h2>No services listed yet</h2>
+            <p>
+                Start by adding your first service.
+                You can set your price and availability whenever you're ready.
+            </p>
+
+            <a class="btn btn-dark"
+               href="{% url 'add_caregiver_service' caregiver.pk %}">
+                + Add Your First Service
+            </a>
+        </section>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endblock %}
