@@ -488,9 +488,12 @@ a {
 }
 
 .chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 14px;
+    margin-top: 16px;
 }
 
 .chip {
@@ -505,14 +508,16 @@ a {
 }
 
 .chip span {
-  display: inline-block;
-  padding: 7px 15px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .chip span:hover {
@@ -1217,7 +1222,6 @@ img.pet-initial-large {
     text-decoration: none;
 }
 
-/* Caregiver service form */
 .service-form-fields {
     display: flex;
     flex-direction: column;
@@ -1274,9 +1278,6 @@ img.pet-initial-large {
     accent-color: #6a4ca6;
 }
 
-
-/* Caregiver profile: service sections */
-
 .caregiver-section {
     padding: 24px;
     border: 1px solid #f0d8cc;
@@ -1290,8 +1291,6 @@ img.pet-initial-large {
     margin: 0 0 18px;
     font-size: 22px;
 }
-
-/* Service type bubbles */
 
 .caregiver-provided-services {
     display: flex;
@@ -1350,3 +1349,4 @@ img.pet-initial-large {
         grid-template-columns: 1fr;
     }
 }
+
