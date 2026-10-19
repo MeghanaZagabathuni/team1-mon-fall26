@@ -1,0 +1,33 @@
+# Runs the Django test suite on every pull request and push to develop/main.
+name: Django tests
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # Django 6.1 needs Python 3.12+
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Django system check
+        run: python manage.py check
+
+      # TODO: add `python manage.py makemigrations --check --dry-run` once the
+      # caregivers app's pending migration (CaregiverService.price_unit) is committed.
+
+      - name: Run tests
+        run: python manage.py test

@@ -1,15 +1,31 @@
 
 # PawPal 🐾
 
-PawPal is a pet-care platform designed to connect pet owners with caregivers for services such as pet sitting, walking, feeding, and drop-in visits.
+PawPal is a web application designed to connect pet owners with caregivers who provide services such as pet sitting, walking, feeding, and drop-in visits.
 
-The platform will allow pet owners to create pet profiles, discover caregivers, and manage bookings. Caregivers will be able to create professional profiles, offer services, and respond to care requests.
+The platform aims to simplify the process of finding reliable pet care, managing pet profiles, coordinating bookings, and connecting members of the pet-care community.
 
-PawPal is being developed collaboratively using Python and Django.
+PawPal is being developed as a collaborative software engineering project.
 
-## Local Development Setup
+## Technology Stack
 
-Follow these instructions to set up PawPal on your computer.
+- **Backend:** Python, Django
+- **Frontend:** HTML, CSS, JavaScript
+- **Database:** PostgreSQL
+- **Cloud Infrastructure:** Amazon Web Services (AWS)
+- **UI/UX Design:** Figma
+- **Version Control:** Git and GitHub
+- **Pillow** – Python image-processing library used with Django's `ImageField` to support profile photo uploads.
+
+## Getting Started
+
+### Prerequisites
+
+Before setting up the project, make sure you have:
+
+- Python installed
+- Git installed
+- A code editor such as Visual Studio Code
 
 ### 1. Clone the Repository
 
@@ -23,8 +39,6 @@ cd team1-mon-fall26
 ```bash
 python -m venv .venv
 ```
-
-This creates an isolated Python environment for the project.
 
 ### 3. Activate the Virtual Environment
 
@@ -46,15 +60,11 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-This installs the Python packages required to run PawPal.
-
 ### 5. Apply Database Migrations
 
 ```bash
 python manage.py migrate
 ```
-
-This creates or updates the local database tables.
 
 ### 6. Start the Development Server
 
@@ -62,114 +72,90 @@ This creates or updates the local database tables.
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000/ in your browser to view the application.
+Open http://127.0.0.1:8000/ in your browser.
 
 To stop the server, press `Ctrl + C` in the terminal.
-
----
 
 ## Project Structure
 
 ```text
-PawPal/
-├── config/              # Shared Django configuration
-├── accounts/            # User accounts and authentication
-├── pets/                # Pet profiles and care information
-├── caregivers/          # Caregiver profiles and discovery
-├── opportunities/       # Public pet-care opportunities
-├── bookings/            # Booking requests and management
-├── templates/           # Shared HTML templates
-├── static/              # CSS, JavaScript, and images
-├── manage.py            # Django management commands
-├── requirements.txt     # Python dependencies
-├── .gitignore           # Files excluded from Git
-└── README.md            # Project documentation
+team1-mon-fall26/
+├── accounts/           # User accounts and authentication
+├── bookings/           # Booking requests and management
+├── caregivers/         # Caregiver profiles and services
+├── config/             # Django project configuration
+├── opportunities/      # Public pet-care opportunities
+├── pets/               # Pet profiles and information
+├── static/             # CSS, JavaScript, and static assets
+├── templates/          # Shared HTML templates
+├── manage.py           # Django management utility
+├── requirements.txt    # Python dependencies
+├── .gitignore          # Git exclusion rules
+└── README.md           # Project documentation
 ```
 
-The project is organized into separate Django apps that share the same project configuration and database.
+Each Django application is responsible for a specific area of functionality, allowing the team to develop features independently while maintaining a shared project structure.
 
----
+## Planned Features
 
-## GitHub Development Workflow
+PawPal's planned functionality includes:
 
-Our team uses the following branching structure:
+- **Pet Profiles:** Create and manage profiles containing pet information and care needs.
+- **Caregiver Profiles:** Create caregiver profiles and list available services.
+- **Caregiver Discovery:** Browse caregivers and view their profiles.
+- **Booking Management:** Request, accept, decline, and manage pet-care bookings.
+- **Care Opportunities:** Post and browse public pet-care opportunities.
+- **Communication:** Support interactions between pet owners and caregivers.
+- **Community Features:** Enable reviews and community discussions.
+- **Administration:** Support account and content moderation.
 
-- **main:** Stable, approved code.
-- **develop:** Shared development and integration branch.
-- **Feature branches:** Individual branches for assigned user stories.
+Features will be implemented incrementally throughout development.
 
-### Working on a Feature
+## UI/UX Design
 
-**1. Update your local develop branch:**
+PawPal's interface and user experience are being designed collaboratively using Figma.
+
+The team will use shared designs and interface references to guide frontend development and maintain consistency across the application.
+
+**Figma Design:** https://www.figma.com/design/b9Ots2MJKqVovgatTdLhjc/PawPal-UI-Design?node-id=5301-28&t=tG12sqdT8IOVGzhz-1
+
+## Development Workflow
+
+The team follows a feature-branch workflow:
+
+- `main` — Stable, approved project code.
+- `develop` — Shared integration branch for ongoing development.
+- Feature branches — Used for implementing individual features and user stories.
+
+### Contributing Changes
+
+1. Switch to the `develop` branch and pull the latest changes.
+2. Create a new feature branch.
+3. Implement and test your changes.
+4. Commit and push your feature branch.
+5. Open a pull request targeting `develop`.
+6. Complete the required review process before merging.
+
+Example:
 
 ```bash
 git switch develop
 git pull origin develop
+git switch -c feature/example-feature
 ```
 
-**2. Create a feature branch:**
+Avoid committing directly to `main`.
 
-```bash
-git switch -c feature/your-feature-name
-```
+## Development Notes
 
-**3. Make your changes and commit them:**
+- Use a local virtual environment for Python dependencies.
+- Do not commit `.venv/`, local databases, or sensitive configuration files.
+- Coordinate changes to shared models and project configuration.
+- Keep dependencies documented in `requirements.txt`.
+- Use GitHub Issues and the project board to track user stories, sprint tasks, and development progress.
 
-```bash
-git add .
-git commit -m "Describe your changes"
-```
+## Project Status
 
-**4. Push your feature branch:**
+PawPal is currently under active development.
 
-```bash
-git push -u origin feature/your-feature-name
-```
-
-**5. Open a pull request targeting the `develop` branch.**
-
-Changes should be reviewed and tested before merging.
-
-The `main` branch is reserved for approved code.
-
----
-
-## Current Sprint Goals
-
-Our initial development sprint focuses on the following functionality:
-
-### Pet Profiles
-- Create pet profiles.
-- Add basic pet information.
-- Save and display pet profiles.
-
-### Caregiver Profiles
-- Create caregiver profiles.
-- List services offered.
-- Save and display caregiver information.
-
-### Caregiver Discovery
-- Browse available caregivers.
-- View caregiver profiles and services.
-
-### Booking Requests
-- Submit a booking request.
-- Store booking requests with a Pending status.
-
-### Caregiver Request Management
-- View incoming care requests.
-- Accept or decline booking requests.
-- Update booking statuses.
-
-
----
-
-## Team Development Guidelines
-
-- Work on individual feature branches rather than directly on `main`.
-- Submit pull requests to `develop` for review.
-- Coordinate changes to shared database models and project settings.
-- Use sample data where necessary while other features are being developed.
-- Test functionality locally before submitting changes.
-- Do not commit virtual environments, local databases, or sensitive information.
-- Keep the project documentation updated as development progresses.
+The initial project structure and Django applications have been established. Features will be added and integrated through the team's development workflow.

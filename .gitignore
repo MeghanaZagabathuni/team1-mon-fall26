@@ -1,17 +1,41 @@
-# Virtual environment
+#Python virtual environment
 .venv/
 venv/
+env/
 
-# Python cache
-__pycache__/
-*.pyc
+#Python compiled files and cache
+__pycache__
+*.py[cod]
+*.pyo
 
-# Local database
+#Local database
 db.sqlite3
+db.sqlite3-journal
 
-# Environment variables and secrets
+#Environment variables and secrets
 .env
+.env.*
+.env.example
 
-# Editor and operating system files
+#Temporary setup directories
+temp_apps/
+temp_projects/
+
+#Python testing and tooling
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+#IDE and editor files
 .vscode/
+.idea/
+
+#Operating system files 
 .DS_Store
+Thumbs.db
+
+#Local logs 
+*.log
+#Uploaded files
+media/

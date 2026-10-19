@@ -1,0 +1,62 @@
+
+{% extends "base.html" %}
+
+{% block title %}Add Service | PawPal{% endblock %}
+
+{% block content %}
+<div class="service-page">
+
+    <div class="service-page-header">
+        <a class="service-back-link"
+           href="{% url 'services' caregiver.pk %}">
+            ← Back to My Services
+        </a>
+
+        <p class="service-eyebrow">CAREGIVER SERVICES</p>
+        <h1>Add a Service</h1>
+        <p class="service-subtitle">
+            Create a new offering for {{ caregiver.name }}.
+            Set your pricing and let pet owners know what to expect.
+        </p>
+    </div>
+
+    <section class="card service-editor-card">
+        <div class="service-card-heading">
+            <span class="service-heading-icon">🐾</span>
+            <div>
+                <h2>Service Details</h2>
+                <p class="muted small">
+                    You can update these details later.
+                </p>
+            </div>
+        </div>
+
+        <form method="post" class="service-editor-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="service-form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="service-form-fields">
+                {{ form.as_p }}
+            </div>
+
+            <div class="service-form-actions">
+                <button type="submit" class="btn btn-dark">
+                    Save Service
+                </button>
+
+                <a class="service-cancel-link"
+                   href="{% url 'services' caregiver.pk %}">
+                    Cancel
+                </a>
+            </div>
+        </form>
+        
+    </section>
+
+</div>
+{% endblock %}

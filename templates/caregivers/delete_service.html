@@ -1,0 +1,58 @@
+
+{% extends "base.html" %}
+
+{% block title %}Delete Service | PawPal{% endblock %}
+
+{% block content %}
+
+<div class="service-page service-delete-page">
+
+    <a class="service-back-link"
+       href="{% url 'services' caregiver.pk %}">
+        ← Back to My Services
+    </a>
+
+    <section class="card service-delete-card">
+
+        <div class="service-delete-icon">!</div>
+
+        <p class="service-eyebrow">MANAGE SERVICES</p>
+
+        <h1>Delete {{ service.service_type.name }}?</h1>
+
+        <p class="service-delete-description">
+            Are you sure you want to delete this service?
+            This action cannot be undone.
+        </p>
+
+        <div class="service-delete-summary">
+            <strong>{{ service.service_type.name }}</strong>
+
+            {% if service.price != None %}
+                <p>
+                    ${{ service.price }} /
+                    {{ service.get_price_unit_display }}
+                </p>
+            {% else %}
+                <p>Price not set</p>
+            {% endif %}
+        </div>
+
+        <form method="post" class="service-delete-actions">
+            {% csrf_token %}
+
+            <button type="submit" class="btn btn-danger">
+                Yes, Delete Service
+            </button>
+
+            <a class="btn btn-outline"
+               href="{% url 'services' caregiver.pk %}">
+                Cancel
+            </a>
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

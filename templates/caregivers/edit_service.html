@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Service | PawPal{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 650px; margin: 40px auto; padding: 30px;">
+    <h1>Edit {{ service.service_type.name }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="service-form-fields">
+            {{ form.as_p }}
+        </div>
+
+        <button type="submit" class="btn btn-dark">
+            Save Changes
+        </button>
+    </form>
+
+    <a href="{% url 'services' caregiver.pk %}">
+        ← Back to My Services
+    </a>
+</div>
+{% endblock %}

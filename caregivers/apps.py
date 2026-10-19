@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
-
 class CaregiversConfig(AppConfig):
-    name = 'caregivers'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "caregivers"
