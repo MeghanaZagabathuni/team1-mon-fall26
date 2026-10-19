@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}My requests · PawPal{% endblock %}
+
+{% block main_class %}page page-medium{% endblock %}
+
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <h1>My booking requests</h1>
+      <p class="muted">Requests stay Pending until the caregiver accepts or declines.</p>
+    </div>
+    <a class="btn btn-dark" href="{% url 'bookings:booking_create' %}"><span aria-hidden="true">+</span> New request</a>
+  </div>
+
+  {% if bookings %}
+    <div class="card booking-list-card">
+      <div class="booking-rows">
+        {% for booking in bookings %}
+          {% include "bookings/partials/booking_row.html" %}
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="card empty-state">
+      <span class="bubble bubble-yellow" aria-hidden="true">{% include "partials/paw_icon.html" %}</span>
+      <h2>No requests yet</h2>
+      <p class="muted">Choose a caregiver and send a request when your pet needs care.</p>
+      <a class="btn btn-dark" href="{% url 'bookings:booking_create' %}">Request care</a>
+    </div>
+  {% endif %}
+{% endblock %}
