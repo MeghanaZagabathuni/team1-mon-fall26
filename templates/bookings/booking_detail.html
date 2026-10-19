@@ -51,6 +51,17 @@
         {% endif %}
       {% elif booking.status == "pending" %}
         <p class="booking-note muted">Sent {{ booking.created_at|date:"M j, g:i A" }}. {{ booking.caregiver.name }} will accept or decline your request.</p>
+      {% elif booking.status == "accepted" %}
+        <div class="alert alert-success booking-outcome" role="status">
+          <span class="alert-icon" aria-hidden="true">✓</span>
+          <span><strong>Request accepted.</strong> {{ booking.caregiver.name }} accepted on {{ booking.updated_at|date:"M j, g:i A" }} and will look after {{ booking.pet.name }}.</span>
+        </div>
+      {% elif booking.status == "declined" %}
+        <div class="alert alert-info booking-outcome" role="status">
+          <span class="alert-icon" aria-hidden="true">!</span>
+          <span><strong>Request declined.</strong> {{ booking.caregiver.name }} can't take this one. You can send a request to another caregiver.</span>
+        </div>
+        <a class="btn btn-dark" href="{% url 'bookings:booking_create' %}?pet={{ booking.pet.pk }}">Request another caregiver</a>
       {% endif %}
     </div>
   </article>

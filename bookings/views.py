@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
+from django.utils import dateformat, timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -28,6 +28,15 @@ def caregiver_bookings(user):
 
 @login_required
 def booking_create(request):
+    # Requesting care is the pet owner's side; caregivers answer requests instead.
+    if getattr(request.user, "caregiver_profile", None):
+        messages.info(
+            request,
+            "Caregiver accounts answer care requests. "
+            "Use a pet owner account to request care.",
+        )
+        return redirect("bookings:caregiver_requests")
+
     if request.method == "POST":
         form = BookingRequestForm(request.POST, owner=request.user)
         if form.is_valid():
@@ -145,6 +154,29 @@ def caregiver_requests(request):
     )
 
 
+def owner_name(user):
+    """A user's name as "Kat W.", falling back to their username."""
+    first, last = user.first_name.strip(), user.last_name.strip()
+    if first and last:
+        return f"{first} {last[0]}."
+    return first or user.username
+
+
+def response_message(booking, new_status):
+    """Confirmation shown to the caregiver after they accept or decline."""
+    when = dateformat.format(
+        timezone.localtime(booking.start_time), r"D, M j \a\t g:i A"
+    )
+    details = f"{booking.pet.name} · {booking.service_type.name} on {when}"
+    owner = owner_name(booking.owner)
+    if new_status == Booking.Status.ACCEPTED:
+        return (
+            f"Request accepted: {details}. {owner} will see it as Accepted, "
+            "and it's now in your upcoming care."
+        )
+    return f"Request declined: {details}. {owner} will see it as Declined."
+
+
 @login_required
 @require_POST
 def booking_respond(request, pk):
@@ -197,8 +229,6 @@ def booking_respond(request, pk):
 
     if not updated:
         messages.error(request, "This request has already been answered.")
-    elif new_status == Booking.Status.ACCEPTED:
-        messages.success(request, f"You accepted {booking.pet.name}'s booking.")
     else:
-        messages.success(request, f"You declined {booking.pet.name}'s booking.")
+        messages.success(request, response_message(booking, new_status))
     return redirect(next_url or booking)

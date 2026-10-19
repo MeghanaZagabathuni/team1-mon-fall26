@@ -1,6 +1,6 @@
 from django import template
 
-from bookings.views import owner_bookings
+from bookings.views import owner_bookings, owner_name
 
 register = template.Library()
 
@@ -16,11 +16,7 @@ def my_booking_requests(context, limit=3):
 @register.filter
 def short_name(user):
     """A user's name as "Kat W.", falling back to their username."""
-    first = (user.first_name or "").strip()
-    last = (user.last_name or "").strip()
-    if first and last:
-        return f"{first} {last[0]}."
-    return first or user.username
+    return owner_name(user)
 
 
 @register.filter

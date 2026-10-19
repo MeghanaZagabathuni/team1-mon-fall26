@@ -519,6 +519,38 @@ class RespondToRequestTests(CaregiverTestData):
         )
         self.assertRedirects(response, booking.get_absolute_url())
 
+    def test_accept_confirmation_has_details(self):
+        self.owner.first_name, self.owner.last_name = "Kat", "Wong"
+        self.owner.save()
+        booking = self.make_booking()
+        response = self.respond(booking, "accept")
+        message = str(list(response.wsgi_request._messages)[0])
+        self.assertIn("Request accepted: Biscuit · Dog walking on", message)
+        self.assertIn("Kat W. will see it as Accepted", message)
+
+    def test_decline_confirmation_has_details(self):
+        booking = self.make_booking()
+        response = self.respond(booking, "decline")
+        message = str(list(response.wsgi_request._messages)[0])
+        self.assertIn("Request declined: Biscuit · Dog walking on", message)
+        self.assertIn("will see it as Declined", message)
+
+    def test_owner_sees_accepted_note(self):
+        booking = self.make_booking()
+        self.respond(booking, "accept")
+        self.client.force_login(self.owner)
+        response = self.client.get(booking.get_absolute_url())
+        self.assertContains(response, "Request accepted.")
+        self.assertContains(response, "Chloe Shih accepted on")
+
+    def test_owner_sees_declined_note_and_can_rebook(self):
+        booking = self.make_booking()
+        self.respond(booking, "decline")
+        self.client.force_login(self.owner)
+        response = self.client.get(booking.get_absolute_url())
+        self.assertContains(response, "Request declined.")
+        self.assertContains(response, "Request another caregiver")
+
     def test_owner_sees_new_status(self):
         booking = self.make_booking()
         self.respond(booking, "accept")
@@ -540,3 +572,21 @@ class CaregiverProfileOwnershipTests(TestCase):
         self.assertRedirects(
             response, reverse("caregiver", args=[profile.pk]), fetch_redirect_response=False
         )
+
+
+class CaregiverCannotRequestCareTests(CaregiverTestData):
+    def test_caregiver_is_sent_to_their_requests(self):
+        self.client.force_login(self.sitter)
+        response = self.client.get(reverse("bookings:booking_create"))
+        self.assertRedirects(response, reverse("bookings:caregiver_requests"))
+
+    def test_caregiver_cannot_post_a_request(self):
+        Pet.objects.create(owner=self.sitter, name="Deez", pet_type=self.pet.pet_type)
+        self.client.force_login(self.sitter)
+        self.client.post(reverse("bookings:booking_create"), self.form_data())
+        self.assertFalse(Booking.objects.filter(owner=self.sitter).exists())
+
+    def test_own_profile_not_offered(self):
+        form = BookingRequestForm(owner=self.sitter)
+        self.assertNotIn(self.caregiver, form.fields["caregiver"].queryset)
+        self.assertIn(self.other_caregiver, form.fields["caregiver"].queryset)
