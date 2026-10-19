@@ -125,13 +125,13 @@ def caregiver_list_services(request, pk):
     services = CaregiverService.objects.filter(caregiver=caregiver)
     return render(request,"caregivers/list_services.html",{"services": services, "caregiver": caregiver})
 
+
 def add_caregiver_service(request, pk):
     caregiver = get_object_or_404(CaregiverProfile, pk=pk)
 
     if request.method == "POST":
         form = CaregiverServicesForm(request.POST)
 
-        
         if form.is_valid():
             service_type = form.cleaned_data["service_type"]
 
@@ -152,17 +152,18 @@ def add_caregiver_service(request, pk):
 
                 return redirect("services", pk=caregiver.pk)
 
-
-            return redirect("services", pk=caregiver.pk)
-
     else:
         form = CaregiverServicesForm()
 
     return render(
         request,
         "caregivers/add_service.html",
-        {"form": form, "caregiver": caregiver}
+        {
+            "form": form,
+            "caregiver": caregiver,
+        }
     )
+
 
 def edit_caregiver_service(request, pk, service_id):
     caregiver = get_object_or_404(CaregiverProfile, pk=pk)
