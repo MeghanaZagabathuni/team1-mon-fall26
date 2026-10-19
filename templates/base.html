@@ -9,11 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <link href="{% static 'css/bookings.css' %}" rel="stylesheet">
 </head>
 <body>
-  {# Teammates: name your URLs "caregiver_list" and "booking_list" and these links start working. #}
+  {# Teammates: name your URL "caregiver_list" and the Find caregivers link starts working. #}
   {% url 'caregiver_list' as find_caregivers_url %}
-  {% url 'booking_list' as my_requests_url %}
+  {% url 'bookings:booking_list' as my_requests_url %}
   {% with section=request.resolver_match.app_name %}
   <header class="site-header">
     <a class="brand" href="{% url 'home' %}">

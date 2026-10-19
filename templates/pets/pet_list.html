@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load booking_tags %}
 
 {% block title %}My pets · PawPal{% endblock %}
 
@@ -66,9 +67,9 @@
     <aside class="card side-panel">
       <h2>My booking requests</h2>
       {% block booking_requests %}
-        <p class="muted">No requests yet. When you request care from a caregiver, it'll show up here.</p>
+        {% my_booking_requests %}
       {% endblock %}
-      <a class="btn btn-outline btn-block" href="{{ find_caregivers_url|default:'#' }}">New request</a>
+      <a class="btn btn-outline btn-block" href="{% url 'bookings:booking_create' %}">New request</a>
     </aside>
   </div>
 {% endblock %}
