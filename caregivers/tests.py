@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 from pets.models import PetType
 
@@ -18,6 +19,10 @@ class CaregiverTestData(TestCase):
         cls.walking = ServiceType.objects.get_or_create(name="Dog walking")[0]
         cls.sitting = ServiceType.objects.get_or_create(name="Pet sitting")[0]
 
+        cls.user = get_user_model().objects.create_user(
+            username="caregiver_test",
+            password="TestPassword123!"
+        )
     def profile_data(self, **overrides):
         data = {
             "name": "Chloe Shih",
@@ -102,6 +107,9 @@ class CaregiverProfileFormTests(CaregiverTestData):
 
 class CreateCaregiverProfileViewTests(CaregiverTestData):
     url = reverse("create_caregiver_profile")
+
+    def setUp(self):
+        self.client.force_login(self.user)
 
     def test_get_shows_form(self):
         response = self.client.get(self.url)

@@ -77,7 +77,7 @@
     
 <!-- Services selected during profile creation -->
 <section class="card caregiver-section">
-    <h2>Services Provided</h2>
+    <h2>Services You Provide</h2>
 
     <div class="caregiver-provided-services">
         {% for service in provided_services %}
@@ -141,7 +141,7 @@
         <p>Pick a pet, a service, and a time. Your caregiver can accept or decline your request.</p>
         <span class="caregiver-booking-placeholder">Booking requests coming soon</span>
       </div>
-      <a class="caregiver-manage-link" href="{% url 'services' caregiver.pk %}">View all service listings →</a>
+      {% comment %}<a class="caregiver-manage-link" href="{% url 'services' caregiver.pk %}">View all service listings →</a>{% endcomment %}
     </aside>
   </div>
 </div>
