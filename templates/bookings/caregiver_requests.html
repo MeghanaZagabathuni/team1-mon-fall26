@@ -3,7 +3,7 @@
 
 {% block title %}Care requests · PawPal{% endblock %}
 
-{% block main_class %}page page-wide{% endblock %}
+{% block main_class %}page page-requests{% endblock %}
 
 {% block content %}
   {% if not profile %}
@@ -61,11 +61,13 @@
 
           <dl class="info-tiles request-tiles">
             <div class="tile tile-name"><dt>Service</dt><dd>{{ b.service_type.name }}</dd></div>
-            <div class="tile tile-type"><dt>When</dt><dd>{{ b.start_time|date:"D, M j · g:i A" }}</dd></div>
+            <div class="tile tile-type"><dt>When</dt><dd>{{ b.start_time|date:"D, M j" }} ·<br>{{ b.start_time|date:"g:i A" }}</dd></div>
           </dl>
 
-          <h3>Care needs</h3>
-          <p>{{ b.pet.special_care_instructions|default:"No care needs added."|linebreaksbr }}</p>
+          <div class="request-care">
+            <h3>Care needs</h3>
+            <p>{{ b.pet.special_care_instructions|default:"No care needs added."|linebreaksbr }}</p>
+          </div>
 
           {% if b.notes %}
             <div class="request-note">
