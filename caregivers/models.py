@@ -1,7 +1,17 @@
+from django.conf import settings
 from django.db import models
 
 
 class CaregiverProfile(models.Model):
+    # The account that owns this profile. Lets a signed-in caregiver see and
+    # respond to the booking requests sent to them.
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="caregiver_profile",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=100)
     bio = models.TextField(blank=True)
     years_of_experience = models.PositiveIntegerField(default=0)

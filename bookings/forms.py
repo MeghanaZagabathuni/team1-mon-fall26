@@ -83,9 +83,12 @@ class BookingRequestForm(forms.ModelForm):
         self.fields["pet"].queryset = Pet.objects.filter(owner=owner).select_related(
             "pet_type"
         )
-        self.fields["caregiver"].queryset = CaregiverProfile.objects.filter(
-            accepting_new_bookings=True
-        ).order_by("name")
+        # Owners can't send a request to their own caregiver profile.
+        self.fields["caregiver"].queryset = (
+            CaregiverProfile.objects.filter(accepting_new_bookings=True)
+            .exclude(user=owner)
+            .order_by("name")
+        )
         self.fields["service_type"].queryset = ServiceType.objects.order_by("name")
 
         # Readable choice labels without touching the other apps' models.

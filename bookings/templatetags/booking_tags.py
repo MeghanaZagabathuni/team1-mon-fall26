@@ -1,6 +1,6 @@
 from django import template
 
-from bookings.views import owner_bookings
+from bookings.views import owner_bookings, owner_name
 
 register = template.Library()
 
@@ -11,3 +11,15 @@ def my_booking_requests(context, limit=3):
     user = context["request"].user
     bookings = owner_bookings(user)[:limit] if user.is_authenticated else []
     return {"bookings": bookings}
+
+
+@register.filter
+def short_name(user):
+    """A user's name as "Kat W.", falling back to their username."""
+    return owner_name(user)
+
+
+@register.filter
+def first_name(user):
+    """A user's first name, falling back to their username."""
+    return (user.first_name or "").strip() or user.username

@@ -1,14 +1,24 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import CaregiverProfile, CaregiverService
 from .forms import CaregiverProfileForm, CaregiverServicesForm
 
 
+@login_required
 def create_caregiver_profile(request):
+    # Each account has at most one caregiver profile.
+    existing = getattr(request.user, "caregiver_profile", None)
+    if existing:
+        return redirect("caregiver", pk=existing.pk)
+
     if request.method == "POST":
         form = CaregiverProfileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            caregiver = form.save()
+            caregiver = form.save(commit=False)
+            caregiver.user = request.user
+            caregiver.save()
+            form.save_m2m()
 
             selected_services = form.cleaned_data["selected_services"]
 
