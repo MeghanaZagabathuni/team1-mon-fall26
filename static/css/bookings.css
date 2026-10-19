@@ -122,6 +122,179 @@
 .booking-detail-body .tile dd { font-size: 15px; }
 .booking-note { margin-top: 18px; }
 
+/* ---------- Caregiver responses ---------- */
+
+.respond-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.status-pill.status-completed { color: var(--purple-dark); box-shadow: inset 0 0 0 1px #c6b5ef; }
+
+/* ---------- Caregiver "Care requests" page (Figma: caregiver Requests) ---------- */
+
+.requests-heading { align-items: center; flex-wrap: wrap; }
+.requests-heading h1 { font-size: 40px; }
+
+.request-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 2px 0 var(--line);
+}
+
+.request-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.request-tab:hover { background: var(--bg); }
+.request-tab.active { background: var(--ink); color: #fff; }
+
+.tab-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: #1e4a73;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.request-tab.active .tab-count { background: var(--yellow); color: var(--ink); }
+
+.requests-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.request-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+
+.request-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 3px 0 var(--line);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.request-row:hover { border-color: var(--line-strong); }
+.request-row.selected { border: 2px solid var(--ink); box-shadow: 0 4px 0 var(--ink); }
+
+.request-row-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.request-row-text strong { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+.request-row-text .muted { font-size: 13px; }
+.request-row-meta { font-size: 14px; }
+
+.request-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--theme-bg);
+  color: var(--theme-ink);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.request-avatar-large { width: 72px; height: 72px; font-size: 30px; }
+
+.request-panel { display: grid; gap: 16px; padding: 26px; justify-items: start; }
+.request-panel > * { width: 100%; }
+.request-panel > .status-pill { width: auto; }
+.request-row .status-pill, .request-panel .status-pill { padding: 5px 12px; font-size: 12px; box-shadow: none; }
+.request-row .status-pending, .request-panel .status-pending { background: var(--yellow-soft); }
+.request-row .status-accepted, .request-panel .status-accepted { background: var(--success-bg); }
+.request-row .status-declined, .request-panel .status-declined { background: var(--tag-bg); }
+.request-row .status-pending .status-dot, .request-panel .status-pending .status-dot { background: #6b4a08; }
+.request-panel-header { display: flex; align-items: center; gap: 16px; }
+.request-panel-header h2 { font-size: 30px; }
+.request-panel-header p { font-size: 14px; margin: 2px 0 0; }
+.request-panel h3 { font-family: var(--font-body); font-size: 15px; font-weight: 700; margin-bottom: -10px; }
+.request-panel p { margin: 0; font-size: 14px; }
+
+.request-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.request-tiles .tile { padding: 14px 16px; }
+.request-tiles .tile dt { font-size: 11px; letter-spacing: 0; text-transform: none; }
+.request-tiles .tile dd { font-size: 16px; line-height: 1.35; }
+
+.request-note { display: grid; gap: 14px; padding: 16px 18px; background: var(--bg); border-radius: var(--radius); }
+
+.request-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+.request-actions .btn { padding: 13px 20px; font-size: 15px; }
+.request-closed { font-size: 13px; }
+
+.upcoming-care { padding: 24px 28px; }
+.upcoming-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.upcoming-header h2 { font-size: 24px; }
+.upcoming-list { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; }
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px 12px 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.date-chip {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  padding: 6px 0;
+  border-radius: 12px;
+  background: var(--yellow);
+  line-height: 1;
+  transform: rotate(-3deg);
+}
+
+.date-chip-month { font-size: 11px; font-weight: 700; }
+.date-chip-day { font-family: var(--font-display); font-size: 24px; font-weight: 600; }
+.upcoming-text { display: grid; }
+.upcoming-text strong { font-size: 15px; }
+.upcoming-text .muted { font-size: 13px; }
+
+.request-avatar { --theme-bg: var(--lavender); --theme-ink: var(--purple-dark); }
+.theme-dog.request-avatar { --theme-bg: var(--peach); --theme-ink: #7a3410; }
+.theme-cat.request-avatar { --theme-bg: var(--blue-soft); --theme-ink: #1e4a73; }
+.theme-rabbit.request-avatar { --theme-bg: var(--pink); --theme-ink: #4a0f2a; }
+.theme-bird.request-avatar { --theme-bg: var(--yellow-soft); --theme-ink: #6b4a08; }
+.theme-fish.request-avatar { --theme-bg: var(--mint); --theme-ink: #14532d; }
+
+@media (max-width: 900px) {
+  .requests-layout { grid-template-columns: 1fr; }
+  .requests-heading h1 { font-size: 32px; }
+}
+
+@media (max-width: 560px) {
+  .request-tabs { width: 100%; overflow-x: auto; }
+  .request-tab { gap: 5px; padding: 6px 9px; font-size: 12px; }
+  .tab-count { min-width: 18px; padding: 1px 5px; }
+  .request-row { gap: 12px; padding: 14px; flex-wrap: wrap; }
+  .request-row .status-pill { margin-left: 56px; }
+  .request-panel { padding: 20px; }
+  .request-tiles { grid-template-columns: 1fr; }
+}
+
 /* ---------- Pet color themes (same palette as pet cards) ---------- */
 
 .booking-avatar,

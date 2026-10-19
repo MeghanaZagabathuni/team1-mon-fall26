@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load booking_tags %}
+
+{% block title %}Care requests · PawPal{% endblock %}
+
+{% block main_class %}page page-wide{% endblock %}
+
+{% block content %}
+  {% if not profile %}
+    <div class="page-heading">
+      <div><h1>Care requests</h1></div>
+    </div>
+    <div class="card empty-state">
+      <span class="bubble bubble-yellow" aria-hidden="true">{% include "partials/paw_icon.html" %}</span>
+      <h2>Create your caregiver profile first</h2>
+      <p class="muted">Owners can only send you requests once you have a caregiver profile.</p>
+      <a class="btn btn-dark" href="{% url 'create_caregiver_profile' %}">Create profile</a>
+    </div>
+  {% else %}
+    <div class="page-heading requests-heading">
+      <div>
+        <h1>Care requests</h1>
+        <p class="muted">{% if pending_count %}{{ pending_count }} request{{ pending_count|pluralize }} need{{ pending_count|pluralize:"s," }} your response.{% else %}You're all caught up.{% endif %}</p>
+      </div>
+      <nav class="request-tabs" aria-label="Filter requests">
+        {% for tab in tabs %}
+          <a href="?status={{ tab.key }}" class="request-tab{% if tab.key == active_tab %} active{% endif %}"{% if tab.key == active_tab %} aria-current="page"{% endif %}>
+            {{ tab.label }} <span class="tab-count tab-count-{{ tab.key }}">{{ tab.count }}</span>
+          </a>
+        {% endfor %}
+      </nav>
+    </div>
+
+    {% if bookings %}
+      <div class="requests-layout">
+        <ul class="request-list">
+          {% for booking in bookings %}
+            <li>
+              <a class="request-row{% if booking == selected %} selected{% endif %}" href="?status={{ active_tab }}&amp;b={{ booking.pk }}"{% if booking == selected %} aria-current="true"{% endif %}>
+                <span class="request-avatar theme-{{ booking.pet.theme }}" aria-hidden="true">{{ booking.pet.name|first|upper }}</span>
+                <span class="request-row-text">
+                  <span><strong>{{ booking.pet.name }}</strong> <span class="muted">· {{ booking.pet.pet_type }}</span></span>
+                  <span class="request-row-meta">{{ booking.service_type.name }} · {{ booking.start_time|date:"D, M j · g:i A" }}</span>
+                </span>
+                {% include "bookings/partials/status_pill.html" with status=booking.status label=booking.get_status_display %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+
+        {% with b=selected %}
+        <aside class="card request-panel" aria-label="Request from {{ b.owner|short_name }}">
+          <div class="request-panel-header">
+            <span class="request-avatar request-avatar-large theme-{{ b.pet.theme }}" aria-hidden="true">{{ b.pet.name|first|upper }}</span>
+            <div>
+              <h2>{{ b.pet.name }}</h2>
+              <p class="muted">{{ b.pet.pet_type }}{% if b.pet.age_display %} · {{ b.pet.age_display }}{% endif %} · Owner: {{ b.owner|short_name }}</p>
+            </div>
+          </div>
+          {% include "bookings/partials/status_pill.html" with status=b.status label=b.get_status_display %}
+
+          <dl class="info-tiles request-tiles">
+            <div class="tile tile-name"><dt>Service</dt><dd>{{ b.service_type.name }}</dd></div>
+            <div class="tile tile-type"><dt>When</dt><dd>{{ b.start_time|date:"D, M j · g:i A" }}</dd></div>
+          </dl>
+
+          <h3>Care needs</h3>
+          <p>{{ b.pet.special_care_instructions|default:"No care needs added."|linebreaksbr }}</p>
+
+          {% if b.notes %}
+            <div class="request-note">
+              <h3>Note from {{ b.owner|first_name }}</h3>
+              <p>{{ b.notes|linebreaksbr }}</p>
+            </div>
+          {% endif %}
+
+          {% if can_respond %}
+            <form method="post" action="{% url 'bookings:booking_respond' b.pk %}" class="request-actions">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" name="action" value="accept" class="btn btn-dark">Accept</button>
+              <button type="submit" name="action" value="decline" class="btn btn-outline">Decline</button>
+            </form>
+          {% elif b.status == "pending" %}
+            <p class="muted request-closed">This request's start time has passed.</p>
+          {% endif %}
+        </aside>
+        {% endwith %}
+      </div>
+    {% else %}
+      <div class="card empty-state">
+        <span class="bubble bubble-yellow" aria-hidden="true">{% include "partials/paw_icon.html" %}</span>
+        <h2>{% if active_tab == "pending" %}No new requests{% else %}Nothing here yet{% endif %}</h2>
+        <p class="muted">When owners send you care requests, they'll show up here.</p>
+      </div>
+    {% endif %}
+
+    <section class="card upcoming-care">
+      <div class="upcoming-header">
+        <h2>Upcoming care</h2>
+        <a class="text-link" href="?status=accepted">View all <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      {% if upcoming %}
+        <ul class="upcoming-list">
+          {% for booking in upcoming %}
+            <li class="upcoming-item">
+              <span class="date-chip" aria-hidden="true">
+                <span class="date-chip-month">{{ booking.start_time|date:"M"|upper }}</span>
+                <span class="date-chip-day">{{ booking.start_time|date:"j" }}</span>
+              </span>
+              <span class="upcoming-text">
+                <strong>{{ booking.pet.name }} · {{ booking.service_type.name }}</strong>
+                <span class="muted">{{ booking.start_time|date:"D g:i A" }} · {{ booking.owner|short_name }}</span>
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">Nothing scheduled yet. Requests you accept show up here.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

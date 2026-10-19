@@ -241,3 +241,302 @@ class BookingPanelTests(BookingTestData):
         self.client.force_login(self.owner)
         response = self.client.get(reverse("pets:list"))
         self.assertContains(response, f'href="{reverse("bookings:booking_list")}"')
+
+
+class CaregiverTestData(BookingTestData):
+    """Adds a signed-in caregiver who owns the caregiver profile."""
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        User = get_user_model()
+        cls.sitter = User.objects.create_user(
+            "chloe", password="pw-12345!", first_name="Chloe", last_name="Shih"
+        )
+        cls.caregiver.user = cls.sitter
+        cls.caregiver.save()
+        cls.other_sitter = User.objects.create_user("sam", password="pw-12345!")
+        cls.other_caregiver = CaregiverProfile.objects.create(
+            name="Sam Lee", service_area="Queens", user=cls.other_sitter
+        )
+
+    def respond(self, booking, action):
+        return self.client.post(
+            reverse("bookings:booking_respond", args=[booking.pk]),
+            {"action": action},
+        )
+
+
+class IncomingRequestsViewTests(CaregiverTestData):
+    url = reverse("bookings:caregiver_requests")
+
+    def booking_at(self, days, **fields):
+        start = timezone.now() + timedelta(days=days)
+        return self.make_booking(
+            start_time=start, end_time=start + timedelta(hours=1), **fields
+        )
+
+    def test_login_required(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+
+    def test_user_without_profile_is_asked_to_create_one(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(self.url)
+        self.assertContains(response, "Create your caregiver profile first")
+
+    def test_caregiver_sees_only_their_requests(self):
+        mine = self.make_booking()
+        theirs = self.make_booking(caregiver=self.other_caregiver)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url)
+        self.assertIn(mine, response.context["bookings"])
+        self.assertNotIn(theirs, response.context["bookings"])
+
+    def test_pending_tab_is_default_and_soonest_first(self):
+        later = self.booking_at(3)
+        sooner = self.booking_at(1)
+        self.booking_at(2, status=Booking.Status.ACCEPTED)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url)
+        self.assertEqual(response.context["active_tab"], "pending")
+        self.assertEqual(response.context["bookings"], [sooner, later])
+        self.assertContains(response, "2 requests need your response.")
+
+    def test_tab_counts(self):
+        self.booking_at(1)
+        self.booking_at(2, status=Booking.Status.ACCEPTED)
+        self.booking_at(3, status=Booking.Status.DECLINED)
+        self.client.force_login(self.sitter)
+        counts = {
+            tab["key"]: tab["count"]
+            for tab in self.client.get(self.url).context["tabs"]
+        }
+        self.assertEqual(
+            counts, {"pending": 1, "accepted": 1, "declined": 1, "all": 3}
+        )
+
+    def test_accepted_and_declined_tabs(self):
+        self.booking_at(1)
+        accepted = self.booking_at(2, status=Booking.Status.ACCEPTED)
+        declined = self.booking_at(3, status=Booking.Status.DECLINED)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url, {"status": "accepted"})
+        self.assertEqual(response.context["bookings"], [accepted])
+        response = self.client.get(self.url, {"status": "declined"})
+        self.assertEqual(response.context["bookings"], [declined])
+
+    def test_unknown_tab_falls_back_to_pending(self):
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url, {"status": "nonsense"})
+        self.assertEqual(response.context["active_tab"], "pending")
+
+    def test_first_request_is_selected_by_default(self):
+        first = self.booking_at(1)
+        self.booking_at(2)
+        self.client.force_login(self.sitter)
+        self.assertEqual(self.client.get(self.url).context["selected"], first)
+
+    def test_request_can_be_selected(self):
+        self.booking_at(1)
+        second = self.booking_at(2)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url, {"b": second.pk})
+        self.assertEqual(response.context["selected"], second)
+
+    def test_cannot_select_another_caregivers_request(self):
+        mine = self.booking_at(1)
+        theirs = self.booking_at(2, caregiver=self.other_caregiver)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url, {"b": theirs.pk})
+        self.assertEqual(response.context["selected"], mine)
+
+    def test_panel_shows_pet_owner_care_needs_and_note(self):
+        self.owner.first_name, self.owner.last_name = "Kat", "Wong"
+        self.owner.save()
+        self.pet.special_care_instructions = "Pulls on the leash near squirrels."
+        self.pet.save()
+        self.booking_at(1, notes="Treats are in the jar.")
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url)
+        self.assertContains(response, "Owner: Kat W.")
+        self.assertContains(response, "Pulls on the leash near squirrels.")
+        self.assertContains(response, "Note from Kat")
+        self.assertContains(response, "Treats are in the jar.")
+        self.assertContains(response, ">Accept</button>")
+
+    def test_no_buttons_for_answered_request(self):
+        self.booking_at(1, status=Booking.Status.ACCEPTED)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url, {"status": "accepted"})
+        self.assertNotContains(response, ">Accept</button>")
+
+    def test_upcoming_care_lists_future_accepted_bookings(self):
+        accepted = self.booking_at(2, status=Booking.Status.ACCEPTED)
+        self.booking_at(1)
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url)
+        self.assertEqual(list(response.context["upcoming"]), [accepted])
+        self.assertContains(response, "Upcoming care")
+
+    def test_caregiver_nav(self):
+        self.client.force_login(self.sitter)
+        response = self.client.get(self.url)
+        self.assertContains(response, ">Requests</a>")
+        self.assertContains(response, ">My profile</a>")
+        self.assertContains(response, "Caregiver")
+        self.assertNotContains(response, ">My pets</a>")
+
+    def test_owner_nav_unchanged(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse("bookings:booking_list"))
+        self.assertContains(response, ">My pets</a>")
+        self.assertNotContains(response, ">My profile</a>")
+
+
+class CaregiverDetailViewTests(CaregiverTestData):
+    def test_caregiver_sees_pet_details_and_buttons(self):
+        self.pet.special_care_instructions = "Twice-daily insulin."
+        self.pet.save()
+        booking = self.make_booking()
+        self.client.force_login(self.sitter)
+        response = self.client.get(booking.get_absolute_url())
+        self.assertContains(response, "Twice-daily insulin.")
+        self.assertContains(response, "Accept request")
+        self.assertContains(response, "Decline")
+
+    def test_other_caregiver_cannot_see_request(self):
+        booking = self.make_booking()
+        self.client.force_login(self.other_sitter)
+        response = self.client.get(booking.get_absolute_url())
+        self.assertEqual(response.status_code, 404)
+
+    def test_owner_does_not_see_respond_buttons(self):
+        booking = self.make_booking()
+        self.client.force_login(self.owner)
+        self.assertNotContains(
+            self.client.get(booking.get_absolute_url()), "Accept request"
+        )
+
+
+class RespondToRequestTests(CaregiverTestData):
+    def setUp(self):
+        self.client.force_login(self.sitter)
+
+    def test_accept_pending_request(self):
+        booking = self.make_booking()
+        response = self.respond(booking, "accept")
+        self.assertRedirects(response, booking.get_absolute_url())
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, Booking.Status.ACCEPTED)
+
+    def test_decline_pending_request(self):
+        booking = self.make_booking()
+        self.respond(booking, "decline")
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, Booking.Status.DECLINED)
+
+    def test_get_not_allowed(self):
+        booking = self.make_booking()
+        url = reverse("bookings:booking_respond", args=[booking.pk])
+        self.assertEqual(self.client.get(url).status_code, 405)
+
+    def test_unknown_action_rejected(self):
+        booking = self.make_booking()
+        self.assertEqual(self.respond(booking, "maybe").status_code, 400)
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, Booking.Status.PENDING)
+
+    def test_cannot_change_an_answered_request(self):
+        booking = self.make_booking(status=Booking.Status.DECLINED)
+        self.respond(booking, "accept")
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, Booking.Status.DECLINED)
+
+    def test_cannot_respond_after_start_time(self):
+        start = timezone.now() - timedelta(hours=1)
+        booking = self.make_booking(start_time=start, end_time=start + timedelta(hours=2))
+        self.respond(booking, "accept")
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, Booking.Status.PENDING)
+
+    def test_other_caregiver_cannot_respond(self):
+        booking = self.make_booking()
+        self.client.force_login(self.other_sitter)
+        self.assertEqual(self.respond(booking, "accept").status_code, 404)
+        booking.refresh_from_db()
+        self.assertEqual(booking.status, Booking.Status.PENDING)
+
+    def test_owner_cannot_respond_to_own_request(self):
+        booking = self.make_booking()
+        self.client.force_login(self.owner)
+        self.assertEqual(self.respond(booking, "accept").status_code, 404)
+
+    def test_overlapping_accept_is_refused(self):
+        start = timezone.now() + timedelta(days=1)
+        self.make_booking(
+            status=Booking.Status.ACCEPTED,
+            start_time=start,
+            end_time=start + timedelta(hours=2),
+        )
+        clash = self.make_booking(
+            start_time=start + timedelta(hours=1),
+            end_time=start + timedelta(hours=3),
+        )
+        self.respond(clash, "accept")
+        clash.refresh_from_db()
+        self.assertEqual(clash.status, Booking.Status.PENDING)
+
+    def test_back_to_back_bookings_can_both_be_accepted(self):
+        start = timezone.now() + timedelta(days=1)
+        self.make_booking(
+            status=Booking.Status.ACCEPTED,
+            start_time=start,
+            end_time=start + timedelta(hours=1),
+        )
+        nxt = self.make_booking(
+            start_time=start + timedelta(hours=1),
+            end_time=start + timedelta(hours=2),
+        )
+        self.respond(nxt, "accept")
+        nxt.refresh_from_db()
+        self.assertEqual(nxt.status, Booking.Status.ACCEPTED)
+
+    def test_returns_to_requests_page(self):
+        booking = self.make_booking()
+        back = reverse("bookings:caregiver_requests") + "?status=pending"
+        response = self.client.post(
+            reverse("bookings:booking_respond", args=[booking.pk]),
+            {"action": "accept", "next": back},
+        )
+        self.assertRedirects(response, back)
+
+    def test_ignores_outside_redirect(self):
+        booking = self.make_booking()
+        response = self.client.post(
+            reverse("bookings:booking_respond", args=[booking.pk]),
+            {"action": "accept", "next": "https://evil.example.com/"},
+        )
+        self.assertRedirects(response, booking.get_absolute_url())
+
+    def test_owner_sees_new_status(self):
+        booking = self.make_booking()
+        self.respond(booking, "accept")
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse("bookings:booking_list"))
+        self.assertContains(response, "Accepted")
+
+
+class CaregiverProfileOwnershipTests(TestCase):
+    def test_new_profile_is_linked_to_signed_in_user(self):
+        user = get_user_model().objects.create_user("new", password="pw-12345!")
+        self.client.force_login(user)
+        response = self.client.post(
+            reverse("create_caregiver_profile"),
+            {"name": "Ana", "service_area": "Bronx", "years_of_experience": 2},
+        )
+        profile = CaregiverProfile.objects.get(name="Ana")
+        self.assertEqual(profile.user, user)
+        self.assertRedirects(
+            response, reverse("caregiver", args=[profile.pk]), fetch_redirect_response=False
+        )
