@@ -1,8 +1,17 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from .models import CaregiverProfile, CaregiverService
 from .forms import CaregiverProfileForm, CaregiverServicesForm
+from .geocoding import GeocodingUnavailable, geocode
+from .search import (
+    caregivers_matching_text,
+    caregivers_near,
+    neighborhood,
+    neighborhoods,
+    searchable_caregivers,
+)
 
 
 @login_required
@@ -251,3 +260,104 @@ def edit_caregiver_service(request, pk, service_id):
             "service": service,
         }
     )
+
+
+@login_required
+def caregiver_list(request):
+    """Story #33: owners search caregivers by location and see them on a map."""
+    caregivers = searchable_caregivers(request.user)
+    area_code = request.GET.get("area", "").strip()
+    address = request.GET.get("address", "").strip()
+    latitude, longitude = _coordinates(request.GET)
+
+    origin = None  # where the owner is searching from: {"label", "latitude", "longitude"}
+    notice = ""
+    results = None
+
+    if latitude is not None and address:
+        # Picked from the address suggestions in the browser.
+        origin = {"label": address, "latitude": latitude, "longitude": longitude}
+    elif address:
+        try:
+            location = geocode(address)
+        except GeocodingUnavailable:
+            location = None
+            results = caregivers_matching_text(caregivers, address)
+            notice = (
+                "Address search is unavailable right now, so these results "
+                "match the neighborhood name instead."
+            )
+        else:
+            if location is None:
+                notice = "We couldn't find that address in New York City."
+                results = []
+            else:
+                origin = {
+                    "label": address,
+                    "latitude": location.latitude,
+                    "longitude": location.longitude,
+                }
+    elif area_code:
+        area = neighborhood(area_code)
+        if area is None:
+            notice = "Choose a neighborhood from the list."
+        else:
+            origin = {
+                "label": f"{area['name']}, {area['borough']}",
+                "latitude": area["latitude"],
+                "longitude": area["longitude"],
+            }
+
+    if origin is not None:
+        results = caregivers_near(caregivers, origin["latitude"], origin["longitude"])
+    elif results is None:
+        results = list(caregivers)
+
+    map_points = [
+        {
+            "id": c.pk,
+            "name": c.name,
+            "latitude": float(c.latitude),
+            "longitude": float(c.longitude),
+            "url": reverse("caregiver", args=[c.pk]),
+        }
+        for c in results
+        if c.latitude is not None and c.longitude is not None
+    ]
+    return render(
+        request,
+        "caregivers/caregiver_list.html",
+        {
+            "caregivers": results,
+            "neighborhoods": neighborhoods(),
+            "area_code": area_code,
+            "address": address,
+            "origin": origin,
+            "notice": notice,
+            "searched": bool(address or area_code),
+            "map_data": {
+                "points": map_points,
+                "origin": (
+                    {
+                        "latitude": float(origin["latitude"]),
+                        "longitude": float(origin["longitude"]),
+                    }
+                    if origin
+                    else None
+                ),
+            },
+        },
+    )
+
+
+def _coordinates(params):
+    """Latitude/longitude from the query string, or (None, None) if missing or invalid."""
+    try:
+        latitude = float(params.get("lat", ""))
+        longitude = float(params.get("lng", ""))
+    except ValueError:
+        return None, None
+    # Roughly the five boroughs; anything else came from a tampered URL.
+    if not (40.4 <= latitude <= 41.0 and -74.3 <= longitude <= -73.6):
+        return None, None
+    return latitude, longitude
