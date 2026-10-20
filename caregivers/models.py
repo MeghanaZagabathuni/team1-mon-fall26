@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -16,6 +17,18 @@ class CaregiverProfile(models.Model):
     bio = models.TextField(blank=True)
     years_of_experience = models.PositiveIntegerField(default=0)
     service_area = models.CharField(max_length=150)
+    # Private street address or cross street, used only to place the caregiver
+    # on the map. Owners never see it; they see `neighborhood` instead.
+    address = models.CharField(max_length=255, blank=True)
+    # Rounded to about 100 m (see caregivers/geocoding.py).
+    latitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
+    neighborhood = models.CharField(max_length=100, blank=True)
+    service_radius_miles = models.PositiveSmallIntegerField(
+        default=3,
+        validators=[MinValueValidator(1), MaxValueValidator(25)],
+        help_text="How far you're willing to travel, in miles.",
+    )
     profile_photo = models.ImageField(upload_to="caregiver/photos",blank=True,null=True)
     special_skills = models.TextField(blank=True)
     certifications = models.TextField(blank=True)
