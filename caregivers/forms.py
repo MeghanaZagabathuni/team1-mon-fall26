@@ -1,4 +1,6 @@
 from django import forms
+
+from .geocoding import GeocodingUnavailable, geocode
 from .models import CaregiverProfile, CaregiverService, ServiceType
 
 class CaregiverProfileForm(forms.ModelForm):
@@ -14,6 +16,8 @@ class CaregiverProfileForm(forms.ModelForm):
             "bio",
             "years_of_experience", 
             "service_area", 
+            "address",
+            "service_radius_miles",
             "profile_photo", 
             "special_skills", 
             "certifications", 
@@ -27,7 +31,66 @@ class CaregiverProfileForm(forms.ModelForm):
             "bio": forms.Textarea(attrs={"rows": 3}),
             "special_skills": forms.Textarea(attrs={"rows": 3}),
             "certifications": forms.Textarea(attrs={"rows": 3}),
+            "address": forms.TextInput(
+                attrs={"placeholder": "e.g. 70 Washington Square South"}
+            ),
         }
+        labels = {
+            "address": "Street address",
+            "service_radius_miles": "How far you'll travel (miles)",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Required for new entries; the model allows blank so older profiles
+        # without an address still load.
+        self.fields["address"].required = True
+        # Set when the address lookup service is down: the profile still saves,
+        # without map coordinates, and the view tells the caregiver.
+        self.geocoding_unavailable = False
+        self._location = None
+
+    @property
+    def matched_location(self):
+        """The Location found for a new or changed address, if any."""
+        return self._location
+
+    def clean_address(self):
+        address = self.cleaned_data["address"].strip()
+        instance = self.instance
+        unchanged = (
+            instance.pk
+            and address == instance.address
+            and instance.latitude is not None
+        )
+        if unchanged:
+            return address
+        try:
+            self._location = geocode(address)
+        except GeocodingUnavailable:
+            self.geocoding_unavailable = True
+            return address
+        if self._location is None:
+            raise forms.ValidationError(
+                "We couldn't find this address in New York City. "
+                "Check the house number and street name."
+            )
+        return address
+
+    def save(self, commit=True):
+        caregiver = super().save(commit=False)
+        if self._location is not None:
+            caregiver.latitude = self._location.latitude
+            caregiver.longitude = self._location.longitude
+            caregiver.neighborhood = self._location.neighborhood
+        elif self.geocoding_unavailable:
+            # Don't keep coordinates that belong to an old address.
+            caregiver.latitude = caregiver.longitude = None
+            caregiver.neighborhood = ""
+        if commit:
+            caregiver.save()
+            self.save_m2m()
+        return caregiver
 
     def edit_caregiver_profile(request, pk):
         caregiver = get_object_or_404(CaregiverProfile, pk=pk)

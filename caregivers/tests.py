@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest import mock
 
 from django.db import IntegrityError
 from django.test import TestCase
@@ -8,6 +9,14 @@ from django.contrib.auth import get_user_model
 from pets.models import PetType
 
 from .forms import CaregiverProfileForm, CaregiverServicesForm
+from .geocoding import Location
+
+WASHINGTON_SQUARE = Location(
+    latitude=Decimal("40.729"),
+    longitude=Decimal("-73.997"),
+    neighborhood="Greenwich Village",
+    borough="Manhattan",
+)
 from .models import CaregiverProfile, CaregiverService, ServiceType
 
 
@@ -23,12 +32,23 @@ class CaregiverTestData(TestCase):
             username="caregiver_test",
             password="TestPassword123!"
         )
+
+    def setUp(self):
+        # Never call the real GeoSearch service from tests.
+        patcher = mock.patch(
+            "caregivers.forms.geocode", return_value=WASHINGTON_SQUARE
+        )
+        self.geocode = patcher.start()
+        self.addCleanup(patcher.stop)
+
     def profile_data(self, **overrides):
         data = {
             "name": "Chloe Shih",
             "bio": "Lifelong dog person.",
             "years_of_experience": 4,
             "service_area": "Brooklyn",
+            "address": "70 Washington Square South",
+            "service_radius_miles": 3,
             "special_skills": "Giving medication",
             "certifications": "Pet First Aid",
             "supported_pet_types": [self.dog.pk, self.cat.pk],
@@ -109,6 +129,7 @@ class CreateCaregiverProfileViewTests(CaregiverTestData):
     url = reverse("create_caregiver_profile")
 
     def setUp(self):
+        super().setUp()
         self.client.force_login(self.user)
 
     def test_get_shows_form(self):
@@ -201,6 +222,7 @@ class EditCaregiverProfileViewTests(CaregiverTestData):
 
 class CaregiverServiceViewTests(CaregiverTestData):
     def setUp(self):
+        super().setUp()
         self.caregiver = self.make_caregiver()
 
     def test_list_shows_caregivers_services_only(self):

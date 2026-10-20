@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import CaregiverProfile, CaregiverService
@@ -19,6 +20,21 @@ def create_caregiver_profile(request):
             caregiver.user = request.user
             caregiver.save()
             form.save_m2m()
+            location = form.matched_location
+            if location is not None:
+                messages.info(
+                    request,
+                    f"We placed you at {location.label.split(',')[0].title()}"
+                    f" ({location.neighborhood}, {location.borough}). "
+                    "If that's not right, edit your address.",
+                )
+            if form.geocoding_unavailable:
+                messages.warning(
+                    request,
+                    "Your profile was saved, but we couldn't look up your address "
+                    "right now, so you won't appear in map search yet. "
+                    "Please save your profile again later.",
+                )
 
             selected_services = form.cleaned_data["selected_services"]
 
@@ -57,6 +73,21 @@ def edit_caregiver_profile(request, pk):
 
         if form.is_valid():
             caregiver = form.save()
+            location = form.matched_location
+            if location is not None:
+                messages.info(
+                    request,
+                    f"We placed you at {location.label.split(',')[0].title()}"
+                    f" ({location.neighborhood}, {location.borough}). "
+                    "If that's not right, edit your address.",
+                )
+            if form.geocoding_unavailable:
+                messages.warning(
+                    request,
+                    "Your profile was saved, but we couldn't look up your address "
+                    "right now, so you won't appear in map search yet. "
+                    "Please save your profile again later.",
+                )
 
             selected_services = form.cleaned_data["selected_services"]
 
