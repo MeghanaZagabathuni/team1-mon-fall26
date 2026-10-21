@@ -435,6 +435,7 @@ a {
 }
 
 .field input[type="text"],
+.field input[type="tel"],
 .field input[type="number"],
 .field select,
 .field textarea {
@@ -548,6 +549,7 @@ a {
 }
 
 .has-error input[type="text"],
+.has-error input[type="tel"],
 .has-error input[type="number"],
 .has-error textarea {
   background: var(--error-input-bg);
@@ -1705,3 +1707,181 @@ img.pet-initial-large {
 }
 
 
+
+
+/* ---------- Care information (feeding, medication, emergency) ---------- */
+
+.section-dot {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+
+.section-dot-feeding { background: var(--yellow); }
+.section-dot-care { background: var(--pink-deep); }
+.section-dot-emergency { background: var(--orange); }
+
+/* Form sections */
+
+.form-section {
+  margin: 8px 0 20px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.form-section h2 {
+  font-size: 18px;
+}
+
+.section-note {
+  margin: -8px 0 14px;
+}
+
+.field-hint {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.field-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+
+/* Profile sections */
+
+.care-sections {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.care-block {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--block-accent);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.care-block-feeding { --block-accent: var(--yellow); }
+.care-block-care { --block-accent: var(--pink-deep); }
+.care-block-emergency { --block-accent: var(--orange); background: #fffaf6; }
+
+.pet-profile-body .care-block h2 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.care-block h3 {
+  margin: 12px 0 2px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.care-block h2 + h3 {
+  margin-top: 4px;
+}
+
+.care-block .section-note {
+  margin: 10px 0 0;
+}
+
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.contact dt {
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.contact dd {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.phone-link {
+  font-weight: 700;
+  color: var(--purple);
+  text-decoration: none;
+}
+
+.phone-link:hover {
+  text-decoration: underline;
+}
+
+/* Caregiver's upcoming visits for this pet */
+
+.care-visits {
+  margin-top: 22px;
+}
+
+.visit-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.visit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.visit:hover {
+  background: var(--bg);
+}
+
+.visit-text {
+  display: grid;
+  flex: 1;
+  font-size: 13px;
+}
+
+.pet-care-link {
+  margin-top: 14px;
+}
+
+@media (max-width: 640px) {
+  .field-pair,
+  .contact-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* The header stacks on phones, so the sun would sit on the text. */
+  .pet-profile-header .deco-sun {
+    display: none;
+  }
+}

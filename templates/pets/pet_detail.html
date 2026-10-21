@@ -30,8 +30,7 @@
         <div class="tile tile-age"><dt>Age</dt><dd>{{ pet.age_display|default:"Not added" }}</dd></div>
       </dl>
 
-      <h2>Care needs</h2>
-      <p>{{ pet.special_care_instructions|default:"No care needs added yet."|linebreaksbr }}</p>
+      {% include "pets/partials/care_info.html" with is_owner=True %}
     </div>
   </article>
 

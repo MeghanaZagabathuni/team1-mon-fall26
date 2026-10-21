@@ -19,6 +19,16 @@ class Pet(models.Model):
     photo = models.ImageField(upload_to="pets/photos", blank=True, null=True)
     description = models.TextField(blank=True)
     special_care_instructions = models.TextField(blank=True)
+
+    # Care information caregivers see once they accept a booking.
+    feeding_instructions = models.TextField(blank=True)
+    medications = models.TextField(blank=True)
+    vet_name = models.CharField("Vet or clinic name", max_length=100, blank=True)
+    vet_phone = models.CharField("Vet phone", max_length=30, blank=True)
+    vet_address = models.CharField("Vet address", max_length=200, blank=True)
+    emergency_contact_name = models.CharField(max_length=100, blank=True)
+    emergency_contact_phone = models.CharField(max_length=30, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -60,6 +70,14 @@ class Pet(models.Model):
         if months == 0:
             return "Under 1 month"
         return f"{months} month{'s' if months != 1 else ''}"
+
+    @property
+    def has_vet_info(self):
+        return bool(self.vet_name or self.vet_phone or self.vet_address)
+
+    @property
+    def has_emergency_contact(self):
+        return bool(self.emergency_contact_name or self.emergency_contact_phone)
 
     @property
     def theme(self):
