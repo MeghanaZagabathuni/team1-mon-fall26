@@ -13,9 +13,10 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('admin/', admin.site.urls),
-    path("caregivers/", include("caregivers.url")),
+    path("caregivers/", include("caregivers.urls")),
     path("pets/", include("pets.urls")),
     path("bookings/", include("bookings.urls")),
+    path("accounts/", include("accounts.urls"))
 ]
 
 # Serve uploaded photos while developing locally.
