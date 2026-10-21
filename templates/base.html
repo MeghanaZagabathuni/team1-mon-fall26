@@ -43,14 +43,14 @@
           </summary>
           <div class="account-dropdown">
             <span class="account-name">{{ user.get_full_name|default:user.username }}</span>
-            <form method="post" action="{% url 'admin:logout' %}">
+            <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}
               <button type="submit" class="link-button">Log out</button>
-            </form>
+          </form>
           </div>
         </details>
       {% else %}
-        <a class="btn btn-dark btn-small" href="{% url 'admin:login' %}?next={{ request.path }}">Log in</a>
+        <a class="btn btn-dark btn-small" href="{% url 'login' %}">Log in</a>
       {% endif %}
     </div>
   </header>

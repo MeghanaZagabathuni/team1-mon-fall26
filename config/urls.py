@@ -16,6 +16,7 @@ urlpatterns = [
     path("caregivers/", include("caregivers.url")),
     path("pets/", include("pets.urls")),
     path("bookings/", include("bookings.urls")),
+    path("accounts/", include("accounts.urls"))
 ]
 
 # Serve uploaded photos while developing locally.
