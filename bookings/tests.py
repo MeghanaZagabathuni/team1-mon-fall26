@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -6,6 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from caregivers.geocoding import Location
 from caregivers.models import CaregiverProfile, ServiceType
 from pets.models import Pet, PetType
 
@@ -560,12 +562,24 @@ class RespondToRequestTests(CaregiverTestData):
 
 
 class CaregiverProfileOwnershipTests(TestCase):
-    def test_new_profile_is_linked_to_signed_in_user(self):
+    # The profile form looks up the address; never call the real service here.
+    @mock.patch("caregivers.forms.geocode")
+    def test_new_profile_is_linked_to_signed_in_user(self, geocode):
+        geocode.return_value = Location(
+            latitude=Decimal("40.837"), longitude=Decimal("-73.866"),
+            neighborhood="Parkchester", borough="Bronx",
+        )
         user = get_user_model().objects.create_user("new", password="pw-12345!")
         self.client.force_login(user)
         response = self.client.post(
             reverse("create_caregiver_profile"),
-            {"name": "Ana", "service_area": "Bronx", "years_of_experience": 2},
+            {
+                "name": "Ana",
+                "service_area": "Bronx",
+                "years_of_experience": 2,
+                "address": "1500 Unionport Rd, Bronx",
+                "service_radius_miles": 3,
+            },
         )
         profile = CaregiverProfile.objects.get(name="Ana")
         self.assertEqual(profile.user, user)

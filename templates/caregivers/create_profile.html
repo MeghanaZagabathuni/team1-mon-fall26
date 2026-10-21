@@ -35,6 +35,18 @@
           <div class="field"><label for="{{ form.name.id_for_label }}">Name <span class="required">*</span></label>{{ form.name }}{{ form.name.errors }}</div>
           <div class="field"><label for="{{ form.service_area.id_for_label }}">Neighborhood <span class="required">*</span></label>{{ form.service_area }}{{ form.service_area.errors }}</div>
         </div>
+        <div class="caregiver-two-fields">
+          <div class="field">
+            <label for="{{ form.address.id_for_label }}">{{ form.address.label }} <span class="required">*</span></label>
+            {{ form.address }}
+            <p class="muted small">Private. Owners only see your neighborhood and distance.</p>
+            {{ form.address.errors }}
+          </div>
+          <div class="field">
+            <label for="{{ form.service_radius_miles.id_for_label }}">{{ form.service_radius_miles.label }} <span class="required">*</span></label>
+            {{ form.service_radius_miles }}{{ form.service_radius_miles.errors }}
+          </div>
+        </div>
         <div class="field">
           <div class="label-row"><label for="{{ form.bio.id_for_label }}">Short intro</label><span class="optional-tag">Optional</span></div>
           {{ form.bio }}{{ form.bio.errors }}
