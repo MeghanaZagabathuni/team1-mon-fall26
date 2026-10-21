@@ -1,0 +1,18 @@
+/* PawPal account pages: complements the shared style.css design tokens. */
+.auth-page { padding-top: 24px; }
+.auth-intro { text-align: center; margin-bottom: 24px; }
+.auth-icon { display: inline-grid; place-items: center; width: 54px; height: 54px; border-radius: 18px; background: var(--pink); font-size: 26px; margin-bottom: 14px; transform: rotate(-5deg); }
+.auth-eyebrow { color: var(--purple); font-size: 11px; font-weight: 800; letter-spacing: .1em; margin-bottom: 8px; }
+.auth-intro h1 { font-size: 34px; margin-bottom: 8px; }
+.auth-intro .muted { font-size: 13px; }
+.auth-card { padding: 30px; }
+.auth-field { margin-bottom: 18px; }
+.auth-field input { display: block; width: 100%; padding: 11px 13px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--input-bg); color: var(--ink); font: inherit; font-size: 14px; }
+.auth-field input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,162,122,.25); }
+.auth-field.has-error input { border-color: var(--error); background: var(--error-input-bg); }
+.auth-help { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.auth-help ul { margin: 6px 0 0; padding-left: 18px; }
+.auth-help li { margin-bottom: 3px; }
+.auth-footer { margin-top: 20px; text-align: center; font-size: 13px; color: var(--muted); }
+.auth-footer a { color: var(--purple); font-weight: 700; }
+@media (max-width: 560px) { .auth-page { padding-top: 12px; } .auth-card { padding: 22px 18px; } .auth-intro h1 { font-size: 29px; } }

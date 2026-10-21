@@ -158,12 +158,6 @@ def delete_caregiver_service(request, pk, service_id):
     )
 
 
-    return render(
-        request,
-        "caregivers/edit_profile.html",
-        {"form": form, "caregiver": caregiver}
-    )
-
 
 def caregiver_profile_detail(request, pk):
     caregiver = get_object_or_404(CaregiverProfile, pk=pk)

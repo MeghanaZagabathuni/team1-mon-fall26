@@ -135,11 +135,9 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# Login
-# Login pages aren't built yet, so use the admin login for now.
-# Change LOGIN_URL to the real login page once the accounts story is done.
 LOGIN_URL = '/admin/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
 
 
 # Email

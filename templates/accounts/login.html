@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Log in | PawPal{% endblock %}
+{% block main_class %}page page-narrow{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+
+<section class="auth-page" aria-labelledby="login-title">
+  <div class="auth-intro">
+    <span class="auth-icon" aria-hidden="true">🐾</span>
+    <p class="auth-eyebrow">WELCOME BACK TO PAWPAL</p>
+    <h1 id="login-title">Log in to your account</h1>
+    <p class="muted">Your pet-care community is happy to see you again.</p>
+  </div>
+
+  <div class="card form-card auth-card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-error" role="alert">
+            <span class="alert-icon" aria-hidden="true">!</span>
+            <div>
+            <strong>We couldn't log you in.</strong>
+            <p>
+                That username and password combination doesn't
+                match our records. Please try again.
+            </p>
+            </div>
+        </div>
+        {% endif %}
+
+      {% for field in form %}
+        <div class="field auth-field{% if field.errors %} has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">
+            {{ field.label }}{% if field.field.required %} <span class="required" aria-label="required">*</span>{% endif %}
+          </label>
+          {{ field }}
+          {% for error in field.errors %}
+            <p class="field-error" role="alert">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button class="btn btn-dark btn-block" type="submit">Log in</button>
+    </form>
+    <p class="auth-footer">New to PawPal? <a href="{% url 'signup' %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}
