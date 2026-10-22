@@ -3,25 +3,27 @@ from django import forms
 from .geocoding import GeocodingUnavailable, geocode
 from .models import CaregiverProfile, CaregiverService, ServiceType
 
+
 class CaregiverProfileForm(forms.ModelForm):
     selected_services = forms.ModelMultipleChoiceField(
         queryset=ServiceType.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+
     class Meta:
         model = CaregiverProfile
         fields = [
-            "name", 
+            "name",
             "bio",
-            "years_of_experience", 
-            "service_area", 
+            "years_of_experience",
+            "service_area",
             "address",
             "service_radius_miles",
-            "profile_photo", 
-            "special_skills", 
-            "certifications", 
-            "supported_pet_types", 
+            "profile_photo",
+            "special_skills",
+            "certifications",
+            "supported_pet_types",
             "accepting_new_bookings",
             ]
         widgets = {
@@ -95,7 +97,7 @@ class CaregiverProfileForm(forms.ModelForm):
 
 class CaregiverServicesForm(forms.ModelForm):
     class Meta:
-        model = CaregiverService 
+        model = CaregiverService
         fields = [
             "service_type",
             "price_unit",

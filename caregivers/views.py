@@ -159,8 +159,6 @@ def delete_caregiver_service(request, pk, service_id):
     )
 
 
-
-
 def caregiver_profile_detail(request, pk):
     caregiver = get_object_or_404(CaregiverProfile, pk=pk)
 
@@ -183,11 +181,13 @@ def caregiver_profile_detail(request, pk):
         }
     )
 
+
 @login_required
 def caregiver_list_services(request, pk):
     caregiver = get_object_or_404(CaregiverProfile, pk=pk, user=request.user)
     services = CaregiverService.objects.filter(caregiver=caregiver)
-    return render(request,"caregivers/list_services.html",{"services": services, "caregiver": caregiver})
+    return render(request, "caregivers/list_services.html", {"services": services, "caregiver": caregiver})
+
 
 @login_required
 def add_caregiver_service(request, pk):
@@ -227,6 +227,7 @@ def add_caregiver_service(request, pk):
             "caregiver": caregiver,
         }
     )
+
 
 @login_required
 def edit_caregiver_service(request, pk, service_id):
