@@ -134,9 +134,10 @@ def edit_caregiver_profile(request, pk):
     )
 
 
-@login_required   
+@login_required
 def delete_caregiver_service(request, pk, service_id):
-    caregiver = get_object_or_404(CaregiverProfile, pk=pk)
+    # Like the other service pages, only the caregiver themselves can delete.
+    caregiver = get_object_or_404(CaregiverProfile, pk=pk, user=request.user)
 
     service = get_object_or_404(
         CaregiverService,
