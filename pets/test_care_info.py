@@ -213,3 +213,29 @@ class CaregiverPetViewTests(TestCase):
         self.assertContains(self.client.get(detail), self.url)
         requests_page = reverse("bookings:caregiver_requests") + "?status=accepted"
         self.assertContains(self.client.get(requests_page), self.url)
+
+
+class PetPageDesignTests(TestCase):
+    """Details from Kat's Figma for the pet pages."""
+
+    def setUp(self):
+        self.owner = User.objects.create_user("alex", password="pass12345")
+        self.client.login(username="alex", password="pass12345")
+        self.pet = Pet.objects.create(
+            owner=self.owner, name="Milo", pet_type=PetType.objects.get(name="Dog")
+        )
+
+    def test_profile_banner_links_to_find_a_caregiver(self):
+        response = self.client.get(self.pet.get_absolute_url())
+        self.assertContains(response, "Find a caregiver")
+        self.assertContains(response, reverse("caregiver_list"))
+
+    def test_photo_badge_links_to_edit(self):
+        response = self.client.get(self.pet.get_absolute_url())
+        self.assertContains(response, "aria-label=\"Add Milo's photo\"")
+
+    def test_form_shows_pet_photo_upload(self):
+        response = self.client.get(reverse("pets:create"))
+        self.assertContains(response, "Pet photo")
+        self.assertContains(response, "Upload photo")
+        self.assertContains(response, "JPG or PNG, up to 5 MB")

@@ -35,28 +35,34 @@
   <form method="post" enctype="multipart/form-data" class="card form-card" novalidate>
     {% csrf_token %}
 
-    <div class="field photo-field{% if form.photo.errors %} has-error{% endif %}">
-      <div class="photo-preview" data-photo-preview>
+    <div class="field photo-field{% if form.photo.errors %} has-error{% endif %}" data-photo-field>
+      <div class="photo-preview{% if pet.photo %} has-photo{% endif %}" data-photo-preview>
         {% if pet.photo %}
           <img src="{{ pet.photo.url }}" alt="Current photo of {{ pet.name }}">
         {% else %}
-          {% include "partials/paw_icon.html" %}
+          {% include "partials/camera_icon.html" %}
         {% endif %}
       </div>
+      <template data-photo-placeholder>{% include "partials/camera_icon.html" %}</template>
       <div class="photo-controls">
-        <div class="label-row">
-          <span class="field-label">{{ form.photo.label }}</span>
+        <div class="photo-label">
+          <span class="field-label">Pet photo</span>
           <span class="tag">Optional</span>
         </div>
-        <p class="muted small">A clear photo helps caregivers recognize your pet. JPG or PNG, up to 5 MB.</p>
-        <label class="btn btn-outline btn-small" for="{{ form.photo.id_for_label }}">
-          {% if pet.photo %}Change photo{% else %}Upload photo{% endif %}
-        </label>
+        <span class="file-name" data-file-name>{% if pet.photo %}{{ pet.photo.name|cut:"pets/photos/" }}{% endif %}</span>
+        <div class="photo-actions">
+          <label class="btn btn-outline btn-small" for="{{ form.photo.id_for_label }}">
+            {% include "partials/camera_icon.html" %}
+            <span data-photo-button-text>{% if pet.photo %}Change photo{% else %}Upload photo{% endif %}</span>
+          </label>
+          <button type="button" class="link-button remove-photo" data-remove-photo{% if not pet.photo %} hidden{% endif %}>Remove</button>
+        </div>
         {{ form.photo }}
-        <span class="file-name" data-file-name></span>
         {% if pet.photo %}
-          <label class="checkbox">{{ form.remove_photo }} Remove current photo</label>
+          {# Without JavaScript this checkbox is the way to remove the photo. #}
+          <label class="checkbox" data-remove-fallback>{{ form.remove_photo }} Remove current photo</label>
         {% endif %}
+        <p class="photo-hint">JPG or PNG, up to 5 MB</p>
         {% for error in form.photo.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
       </div>
     </div>
@@ -69,7 +75,7 @@
 
     <fieldset class="field{% if form.pet_type.errors %} has-error{% endif %}">
       <legend>{{ form.pet_type.label }} <span class="required">*</span></legend>
-      <div class="chips">
+      <div class="chips pet-type-chips">
         {% for radio in form.pet_type %}
           <label class="chip">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
         {% endfor %}
@@ -128,20 +134,54 @@
   </form>
 
   <script>
-    // Show the chosen photo right away, before the form is saved.
+    // Photo picker: show the chosen photo right away, and let the owner remove
+    // either the newly chosen photo or the saved one.
     (function () {
+      var field = document.querySelector("[data-photo-field]");
+      if (!field) return;
       var input = document.getElementById("{{ form.photo.id_for_label }}");
-      var preview = document.querySelector("[data-photo-preview]");
-      var fileName = document.querySelector("[data-file-name]");
-      if (!input || !preview) return;
+      var preview = field.querySelector("[data-photo-preview]");
+      var fileName = field.querySelector("[data-file-name]");
+      var buttonText = field.querySelector("[data-photo-button-text]");
+      var removeButton = field.querySelector("[data-remove-photo]");
+      var removeBox = document.getElementById("{{ form.remove_photo.id_for_label }}");
+      var fallback = field.querySelector("[data-remove-fallback]");
+      var placeholder = field.querySelector("[data-photo-placeholder]").innerHTML;
+      var saved = {
+        html: preview.innerHTML,
+        name: fileName.textContent,
+        hasPhoto: preview.classList.contains("has-photo"),
+      };
+      if (fallback) fallback.hidden = true;
+
+      function show(html, name, hasPhoto) {
+        preview.innerHTML = html;
+        preview.classList.toggle("has-photo", hasPhoto);
+        fileName.textContent = name;
+        buttonText.textContent = hasPhoto ? "Change photo" : "Upload photo";
+        removeButton.hidden = !hasPhoto;
+      }
+
       input.addEventListener("change", function () {
         var file = input.files && input.files[0];
         if (!file) return;
-        fileName.textContent = file.name;
-        var img = preview.querySelector("img") || document.createElement("img");
+        if (removeBox) removeBox.checked = false;
+        var img = document.createElement("img");
         img.alt = "Selected photo";
         img.src = URL.createObjectURL(file);
-        preview.replaceChildren(img);
+        show(img.outerHTML, file.name, true);
+      });
+
+      removeButton.addEventListener("click", function () {
+        if (input.value) {
+          // Undo the new choice and go back to the saved photo (if any).
+          input.value = "";
+          show(saved.html, saved.name, saved.hasPhoto);
+        } else if (removeBox) {
+          // Remove the saved photo when the form is saved.
+          removeBox.checked = true;
+          show(placeholder, "", false);
+        }
       });
     })();
   </script>

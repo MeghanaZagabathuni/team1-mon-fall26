@@ -10,7 +10,9 @@
 
   <article class="card pet-profile theme-{{ pet.theme }}">
     <header class="pet-profile-header">
-      {% if pet.photo %}<img class="pet-initial pet-initial-large pet-photo" src="{{ pet.photo.url }}" alt="Photo of {{ pet.name }}">{% else %}<span class="pet-initial pet-initial-large" aria-hidden="true">{{ pet.name|first|upper }}</span>{% endif %}
+      <div class="avatar-wrap">
+        {% if pet.photo %}<img class="pet-initial pet-initial-large pet-photo" src="{{ pet.photo.url }}" alt="Photo of {{ pet.name }}">{% else %}<span class="pet-initial pet-initial-large" aria-hidden="true">{{ pet.name|first|upper }}</span>{% endif %}
+      </div>
       <div class="pet-profile-title">
         <h1>{{ pet.name }}</h1>
         <p>{{ pet.pet_type }}{% if pet.breed %} · {{ pet.breed }}{% endif %}{% if pet.age_display %} · {{ pet.age_display }} old{% endif %} · Owner: {{ pet.owner|short_name }}</p>
