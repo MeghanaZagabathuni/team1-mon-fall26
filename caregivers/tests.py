@@ -199,8 +199,11 @@ class CaregiverProfileDetailViewTests(CaregiverTestData):
 
 
 class EditCaregiverProfileViewTests(CaregiverTestData):
+    def setUp(self):
+        super().setUp()
+        self.client.force_login(self.user)
     def test_edit_form_is_prefilled(self):
-        caregiver = self.make_caregiver()
+        caregiver = self.make_caregiver(user=self.user)
         self.make_service(caregiver)
         response = self.client.get(reverse("edit_caregiver_profile", args=[caregiver.pk]))
         self.assertEqual(response.status_code, 200)
@@ -209,7 +212,7 @@ class EditCaregiverProfileViewTests(CaregiverTestData):
         self.assertIn(self.walking.pk, list(form.initial["selected_services"]))
 
     def test_post_updates_profile(self):
-        caregiver = self.make_caregiver()
+        caregiver = self.make_caregiver(user=self.user)
         response = self.client.post(
             reverse("edit_caregiver_profile", args=[caregiver.pk]),
             self.profile_data(service_area="Queens", accepting_new_bookings=""),
@@ -223,7 +226,8 @@ class EditCaregiverProfileViewTests(CaregiverTestData):
 class CaregiverServiceViewTests(CaregiverTestData):
     def setUp(self):
         super().setUp()
-        self.caregiver = self.make_caregiver()
+        self.caregiver = self.make_caregiver(user=self.user)
+        self.client.force_login(self.user)
 
     def test_list_shows_caregivers_services_only(self):
         self.make_service(self.caregiver, description="30 minute walk")
