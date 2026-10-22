@@ -147,7 +147,7 @@ class BookingCreateViewTests(BookingTestData):
     def test_login_required(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/admin/login/", response["Location"])
+        self.assertIn("/accounts/login/", response["Location"])
 
     def test_get_shows_form_with_own_pets_only(self):
         self.client.force_login(self.owner)
