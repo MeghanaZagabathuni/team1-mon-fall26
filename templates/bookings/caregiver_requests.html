@@ -69,6 +69,10 @@
             <p>{{ b.pet.special_care_instructions|default:"No care needs added."|linebreaksbr }}</p>
           </div>
 
+          {% if b.shows_pet_care_info %}
+            <a class="btn btn-outline btn-block pet-care-link" href="{% url 'pets:care_view' b.pet.pk %}">View {{ b.pet.name }}'s full profile</a>
+          {% endif %}
+
           {% if b.notes %}
             <div class="request-note">
               <h3>Note from {{ b.owner|first_name }}</h3>
@@ -111,7 +115,7 @@
                 <span class="date-chip-day">{{ booking.start_time|date:"j" }}</span>
               </span>
               <span class="upcoming-text">
-                <strong>{{ booking.pet.name }} · {{ booking.service_type.name }}</strong>
+                <strong><a href="{% url 'pets:care_view' booking.pet.pk %}">{{ booking.pet.name }}</a> · {{ booking.service_type.name }}</strong>
                 <span class="muted">{{ booking.start_time|date:"D g:i A" }} · {{ booking.owner|short_name }}</span>
               </span>
             </li>

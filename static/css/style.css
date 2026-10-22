@@ -435,6 +435,7 @@ a {
 }
 
 .field input[type="text"],
+.field input[type="tel"],
 .field input[type="number"],
 .field select,
 .field textarea {
@@ -548,6 +549,7 @@ a {
 }
 
 .has-error input[type="text"],
+.has-error input[type="tel"],
 .has-error input[type="number"],
 .has-error textarea {
   background: var(--error-input-bg);
@@ -603,24 +605,74 @@ a {
 
 .file-name {
   display: block;
-  margin-top: 6px;
+  margin-bottom: 8px;
   font-size: 12px;
-  color: var(--muted);
+  color: var(--ink);
   overflow-wrap: anywhere;
+}
+
+.file-name:empty {
+  display: none;
 }
 
 .photo-preview {
   display: grid;
   place-items: center;
   flex: none;
-  width: 96px;
-  height: 96px;
+  width: 76px;
+  height: 76px;
   overflow: hidden;
-  border-radius: 18px;
-  background: var(--tag-bg);
-  border: 2px dashed var(--line-strong);
-  color: #c9a99b;
-  font-size: 38px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--line-strong);
+  color: var(--muted);
+}
+
+.photo-preview .camera-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.photo-preview.has-photo {
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1.5px var(--line-strong);
+}
+
+.photo-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.photo-actions .btn {
+  gap: 6px;
+}
+
+.photo-actions .camera-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.remove-photo {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.remove-photo:hover {
+  text-decoration: underline;
+}
+
+.photo-controls .photo-hint {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .photo-preview img {
@@ -631,6 +683,10 @@ a {
 
 .has-error .photo-preview {
   border-color: var(--error);
+}
+
+.checkbox[hidden] {
+  display: none !important;
 }
 
 .checkbox {
@@ -852,6 +908,7 @@ a {
   flex: none;
   width: 42px;
   height: 42px;
+  border-radius: 50%;
   background: var(--theme-bg);
   color: var(--theme-ink);
   font-family: var(--font-display);
@@ -930,12 +987,40 @@ img.pet-initial-large {
 }
 
 .pet-initial-large {
-  width: 78px;
-  height: 78px;
+  width: 82px;
+  height: 82px;
   background: #fff;
-  font-size: 32px;
-  transform: rotate(-3deg);
-  box-shadow: 4px 4px 0 var(--theme-deep);
+  font-size: 34px;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.45);
+}
+
+.avatar-wrap {
+  position: relative;
+  flex: none;
+}
+
+/* Small yellow camera button on the pet's photo (Figma). */
+.photo-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.photo-badge .camera-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.photo-badge:hover {
+  background: #f5c86a;
 }
 
 .pet-profile-title h1 {
@@ -1705,3 +1790,198 @@ img.pet-initial-large {
 }
 
 
+
+
+/* ---------- Care information (feeding, medication, emergency) ---------- */
+
+.section-dot {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+
+.section-dot-feeding { background: var(--yellow); }
+.section-dot-care { background: var(--pink-deep); }
+.section-dot-emergency { background: var(--orange); }
+
+/* Form sections */
+
+.form-section {
+  margin: 8px 0 20px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.form-section h2 {
+  font-size: 18px;
+}
+
+.section-note {
+  margin: -8px 0 14px;
+}
+
+.field-hint {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.field-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 14px;
+}
+
+/* Profile sections */
+
+.care-sections {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.care-block {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--block-accent);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.care-block-feeding { --block-accent: var(--yellow); }
+.care-block-care { --block-accent: var(--pink-deep); }
+.care-block-emergency { --block-accent: var(--orange); background: #fffaf6; }
+
+.pet-profile-body .care-block h2 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.care-block h3 {
+  margin: 12px 0 2px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.care-block h2 + h3 {
+  margin-top: 4px;
+}
+
+.care-block .section-note {
+  margin: 10px 0 0;
+}
+
+.contact-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.contact dt {
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.contact dd {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.phone-link {
+  font-weight: 700;
+  color: var(--purple);
+  text-decoration: none;
+}
+
+.phone-link:hover {
+  text-decoration: underline;
+}
+
+/* Caregiver's upcoming visits for this pet */
+
+.care-visits {
+  margin-top: 22px;
+}
+
+.visit-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.visit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.visit:hover {
+  background: var(--bg);
+}
+
+.visit-text {
+  display: grid;
+  flex: 1;
+  font-size: 13px;
+}
+
+.pet-care-link {
+  margin-top: 14px;
+}
+
+@media (max-width: 640px) {
+  .field-pair,
+  .contact-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* The header stacks on phones, so the sun would sit on the text. */
+  .pet-profile-header .deco-sun {
+    display: none;
+  }
+}
+
+/* Pet type chips on the pet form are a bit smaller, so all six fit on one row (Figma). */
+.pet-type-chips {
+  column-gap: 8px;
+  margin-top: 10px;
+}
+
+.pet-type-chips .chip span {
+  min-height: 36px;
+  padding: 7px 15px;
+}
+
+/* Only the age number turns red on an error, not the years/months menu (Figma). */
+.has-error .age-row select {
+  border-color: var(--line-strong);
+  background-color: var(--input-bg);
+}
