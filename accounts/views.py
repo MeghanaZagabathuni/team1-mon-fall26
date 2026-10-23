@@ -23,7 +23,6 @@ def signup_view(request):
     return render(request, "accounts/signup.html", {"form": form})
 
 
-
 @login_required
 def signup_success_view(request):
     profile = request.user.account_profile
