@@ -41,6 +41,9 @@
         {% if booking.pet.description %}<p>{{ booking.pet.description|linebreaksbr }}</p>{% endif %}
         <h2>Care needs</h2>
         <p>{{ booking.pet.special_care_instructions|default:"No care needs added."|linebreaksbr }}</p>
+        {% if booking.shows_pet_care_info %}
+          <a class="btn btn-dark pet-care-link" href="{% url 'pets:care_view' booking.pet.pk %}">View {{ booking.pet.name }}'s feeding, medication &amp; emergency info</a>
+        {% endif %}
 
         {% if can_respond %}
           <form method="post" action="{% url 'bookings:booking_respond' booking.pk %}" class="respond-actions">

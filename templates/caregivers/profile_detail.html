@@ -60,6 +60,7 @@
             <span class="caregiver-badge">🐾 {{ caregiver.years_of_experience }} year{{ caregiver.years_of_experience|pluralize }} caring for pets</span>
           </div>
           {% if caregiver.bio %}<p class="caregiver-intro">{{ caregiver.bio }}</p>{% endif %}
+          {% if caregiver.user_id and caregiver.user_id == request.user.id %}
           <div class="caregiver-profile-actions">
             <a
                 href="{% url 'edit_caregiver_profile' caregiver.pk %}"
@@ -68,6 +69,7 @@
                  Edit Profile
             </a>
         </div>
+          {% endif %}
         </div>
       </article>
 

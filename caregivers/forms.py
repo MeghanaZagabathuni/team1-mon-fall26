@@ -2,7 +2,7 @@ from django import forms
 
 from .geocoding import GeocodingUnavailable, geocode
 from .models import CaregiverProfile, CaregiverService, ServiceType
-from django.shortcuts import get_object_or_404, render,redirect
+
 
 class CaregiverProfileForm(forms.ModelForm):
     selected_services = forms.ModelMultipleChoiceField(
@@ -10,19 +10,20 @@ class CaregiverProfileForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+
     class Meta:
         model = CaregiverProfile
         fields = [
-            "name", 
+            "name",
             "bio",
-            "years_of_experience", 
-            "service_area", 
+            "years_of_experience",
+            "service_area",
             "address",
             "service_radius_miles",
-            "profile_photo", 
-            "special_skills", 
-            "certifications", 
-            "supported_pet_types", 
+            "profile_photo",
+            "special_skills",
+            "certifications",
+            "supported_pet_types",
             "accepting_new_bookings",
             ]
         widgets = {
@@ -93,35 +94,10 @@ class CaregiverProfileForm(forms.ModelForm):
             self.save_m2m()
         return caregiver
 
-    def edit_caregiver_profile(request, pk):
-        caregiver = get_object_or_404(CaregiverProfile, pk=pk)
-
-        if request.method == "POST":
-            form = CaregiverProfileForm(
-                request.POST,
-                request.FILES,
-                instance=caregiver
-            )
-
-            if form.is_valid():
-                form.save()
-                return redirect("caregiver_profile_detail", pk=caregiver.pk)
-
-        else:
-            form = CaregiverProfileForm(instance=caregiver)
-
-        return render(
-            request,
-            "caregivers/edit_profile.html",
-            {
-                "form": form,
-                "caregiver": caregiver,
-            }
-        )
 
 class CaregiverServicesForm(forms.ModelForm):
     class Meta:
-        model = CaregiverService 
+        model = CaregiverService
         fields = [
             "service_type",
             "price_unit",
@@ -136,22 +112,27 @@ class CaregiverServicesForm(forms.ModelForm):
             }),
             "price": forms.NumberInput(attrs={
                 "step": "0.01",
+                "min": "0",
                 "placeholder": "e.g. 25.00"
             }),
         }
 
-def clean(self):
-    cleaned_data = super().clean()
+    def clean_price(self):
+        price = self.cleaned_data.get("price")
+        if price is not None and price < 0:
+            raise forms.ValidationError("Price can't be negative.")
+        return price
 
-    is_active = cleaned_data.get("is_active")
-    price = cleaned_data.get("price")
+    def clean(self):
+        cleaned_data = super().clean()
 
-    if is_active and price is None:
-        self.add_error(
-            "price",
-            "Please set a price before activating this service."
-        )
+        is_active = cleaned_data.get("is_active")
+        price = cleaned_data.get("price")
 
-    return cleaned_data
+        if is_active and price is None and "price" not in self.errors:
+            self.add_error(
+                "price",
+                "Please set a price before activating this service."
+            )
 
-
+        return cleaned_data

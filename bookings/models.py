@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 
 class Booking(models.Model):
@@ -52,3 +53,8 @@ class Booking(models.Model):
 
     def get_absolute_url(self):
         return reverse("bookings:booking_detail", args=[self.pk])
+
+    @property
+    def shows_pet_care_info(self):
+        """Accepted and not over yet: the caregiver can see the pet's full profile."""
+        return self.status == self.Status.ACCEPTED and self.end_time > timezone.now()

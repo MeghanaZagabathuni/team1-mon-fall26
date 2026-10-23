@@ -10,6 +10,7 @@ from pets.models import PetType
 
 from .forms import CaregiverProfileForm, CaregiverServicesForm
 from .geocoding import Location
+from .models import CaregiverProfile, CaregiverService, ServiceType
 
 WASHINGTON_SQUARE = Location(
     latitude=Decimal("40.729"),
@@ -17,7 +18,6 @@ WASHINGTON_SQUARE = Location(
     neighborhood="Greenwich Village",
     borough="Manhattan",
 )
-from .models import CaregiverProfile, CaregiverService, ServiceType
 
 
 class CaregiverTestData(TestCase):
@@ -202,6 +202,7 @@ class EditCaregiverProfileViewTests(CaregiverTestData):
     def setUp(self):
         super().setUp()
         self.client.force_login(self.user)
+
     def test_edit_form_is_prefilled(self):
         caregiver = self.make_caregiver(user=self.user)
         self.make_service(caregiver)
