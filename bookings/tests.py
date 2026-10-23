@@ -315,7 +315,8 @@ class IncomingRequestsViewTests(CaregiverTestData):
             for tab in self.client.get(self.url).context["tabs"]
         }
         self.assertEqual(
-            counts, {"pending": 1, "accepted": 1, "declined": 1, "all": 3}
+            counts,
+            {"pending": 1, "accepted": 1, "declined": 1, "completed": 0, "all": 3},
         )
 
     def test_accepted_and_declined_tabs(self):
