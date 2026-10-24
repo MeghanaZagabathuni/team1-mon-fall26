@@ -1,50 +1,132 @@
+
 {% extends "base.html" %}
 {% load static %}
 
 {% block title %}Create an account | PawPal{% endblock %}
-{% block main_class %}page page-narrow{% endblock %}
+{% block site_header %}{% endblock %}
+{% block main_class %}auth-main{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+<link rel="stylesheet" href="{% static 'css/accounts.css' %}?v=2">
 
-<section class="auth-page" aria-labelledby="signup-title">
-  <div class="auth-intro">
-    <span class="auth-icon" aria-hidden="true">🐾</span>
-    <p class="auth-eyebrow">JOIN THE PAWPAL FAMILY</p>
-    <h1 id="signup-title">Create your account</h1>
-    <p class="muted">A little more about you, then you're ready to meet your pet-care community.</p>
-  </div>
+<section class="auth-screen">
+    <a class="brand auth-home-link" href="{% url 'home' %}">
+    <span class="brand-mark">
+        {% include "partials/paw_icon.html" %}
+    </span>
+    <span class="brand-name">PawPal</span>
+  </a>
+  <span class="auth-circle auth-circle-lavender"></span>
+  <span class="auth-circle auth-circle-yellow"></span>
+  <span class="auth-circle auth-circle-pink"></span>
+  <span class="auth-circle auth-circle-mint"></span>
 
-  <div class="card form-card auth-card">
+  <div class="auth-panel">
+    <div class="auth-brand">
+      <span class="auth-brand-icon">🐾</span>
+      <span>PawPal</span>
+    </div>
+
+    <h1>Create your account</h1>
+    <p class="auth-subtitle">Join as a pet owner or caregiver.</p>
+
     <form method="post" novalidate>
       {% csrf_token %}
 
-      {% if form.non_field_errors %}
-        <div class="alert alert-error" role="alert">
-          <div>
-            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-          </div>
+      {% if form.errors %}
+        <div class="auth-error-summary" role="alert">
+          <span>!</span>
+          {% if form.errors|length == 1 %}
+            Fix 1 field to continue.
+          {% else %}
+            Fix {{ form.errors|length }} fields to continue.
+          {% endif %}
         </div>
       {% endif %}
 
-      {% for field in form %}
-        <div class="field auth-field{% if field.errors %} has-error{% endif %}">
-          <label for="{{ field.id_for_label }}">
-            {{ field.label }}{% if field.field.required %} <span class="required" aria-label="required">*</span>{% endif %}
-          </label>
-          {{ field }}
-          {% if field.help_text %}
-            <div class="auth-help">{{ field.help_text|safe }}</div>
-          {% endif %}
-          {% for error in field.errors %}
-            <p class="field-error" role="alert">{{ error }}</p>
+      <div class="auth-form-field">
+        <label>I'm a <span class="required">*</span></label>
+
+        <div class="auth-role-options">
+          {% for choice in form.account_type %}
+            <label class="auth-role-card">
+              {{ choice.tag }}
+              <span class="auth-role-content">
+                <span class="auth-role-icon">
+                  {% if choice.data.value == "pet_owner" %}🐾{% else %}⌂{% endif %}
+                </span>
+                <span>{{ choice.choice_label }}</span>
+              </span>
+            </label>
           {% endfor %}
         </div>
-      {% endfor %}
 
-      <button class="btn btn-dark btn-block" type="submit">Create account</button>
+        {% for error in form.account_type.errors %}
+          <p class="auth-field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="auth-form-field">
+        <label for="{{ form.username.id_for_label }}">Username <span class="required">*</span></label>
+        {{ form.username }}
+        {% for error in form.username.errors %}
+          <p class="auth-field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="auth-name-row">
+        <div class="auth-form-field">
+          <label for="{{ form.first_name.id_for_label }}">First name <span class="required">*</span></label>
+          {{ form.first_name }}
+          {% for error in form.first_name.errors %}
+            <p class="auth-field-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="auth-form-field">
+          <label for="{{ form.last_name.id_for_label }}">Last name <span class="required">*</span></label>
+          {{ form.last_name }}
+          {% for error in form.last_name.errors %}
+            <p class="auth-field-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="auth-form-field">
+        <label for="{{ form.email.id_for_label }}">Email <span class="required">*</span></label>
+        {{ form.email }}
+        {% for error in form.email.errors %}
+          <p class="auth-field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="auth-form-field">
+        <label for="{{ form.password1.id_for_label }}">Password <span class="required">*</span></label>
+        {{ form.password1 }}
+        {% for error in form.password1.errors %}
+          <p class="auth-field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="auth-form-field">
+        <label for="{{ form.password2.id_for_label }}">Confirm password <span class="required">*</span></label>
+        {{ form.password2 }}
+        {% for error in form.password2.errors %}
+          <p class="auth-field-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="auth-submit">Create account</button>
     </form>
-    <p class="auth-footer">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <p class="auth-oauth-note">Google sign-in coming soon</p>
+
+    <p class="auth-footer">
+      Already have an account?
+      <a href="{% url 'login' %}">Log in</a>
+    </p>
   </div>
 </section>
 {% endblock %}
