@@ -21,6 +21,10 @@
   .caregiver-header-info h1 { margin: 0 0 12px; font-size: clamp(26px, 3.4vw, 36px); line-height: 1.15; }
   .caregiver-badges, .caregiver-tags { display: flex; flex-wrap: wrap; gap: 7px; }
   .caregiver-badge { background: #f9e7df; color: #4b342e; border-radius: 99px; padding: 6px 10px; font-size: 12px; }
+  .caregiver-availability { display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .caregiver-availability.available { background: #dff5e6; color: #245c3d; border: 1px solid #b8e5c9; }
+  .caregiver-availability.unavailable { background: #f8e5df; color: #805042; border: 1px solid #edcfc4; }
+  .availability-dot { display: inline-block; width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
   .caregiver-intro { margin: 14px 0 0; font-size: 14px; line-height: 1.65; }
   .caregiver-section-body { padding: 21px 22px; }
   .caregiver-section-body h2 { font-size: 20px; margin: 0 0 17px; }
@@ -38,6 +42,12 @@
   .caregiver-booking-placeholder { position: relative; z-index: 1; display: block; border-radius: 99px; padding: 12px 15px; background: white; color: #4d3974; text-align: center; font-weight: 700; font-size: 13px; }
   .caregiver-manage-link { display: inline-block; margin-top: 14px; color: #5c3c84; font-size: 13px; font-weight: 700; }
   @media (max-width: 760px) { .caregiver-public-grid { grid-template-columns: 1fr; } .caregiver-service-grid { grid-template-columns: 1fr; } .caregiver-public { padding-left: 12px; padding-right: 12px; } }
+  .caregiver-booking-button { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; box-sizing: border-box; padding: 15px 22px; background: #ffffff; color: #614298; border: 2px solid transparent; border-radius: 999px; font-size: 15px; font-weight: 700; line-height: 1.3; text-decoration: none; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; }
+  .caregiver-booking-button:hover { background: #fff3d7; color: #4d327e; text-decoration: none; transform: translateY(-2px); box-shadow: 0 5px 0 rgba(54, 31, 93, 0.2); }
+  .caregiver-booking-button:focus-visible { outline: 3px solid #ffc84d; outline-offset: 3px; }
+  .caregiver-booking-button:active { transform: translateY(0); }
+  .caregiver-booking-card::after { z-index: 0; pointer-events: none; }
+  .caregiver-booking-card > * { position: relative; z-index: 1; }
 </style>
 
 <div class="caregiver-public">
@@ -56,8 +66,21 @@
         <div class="caregiver-header-info">
           <h1>{{ caregiver.name }}</h1>
           <div class="caregiver-badges">
-            <span class="caregiver-badge">📍 {{ caregiver.service_area }}</span>
-            <span class="caregiver-badge">🐾 {{ caregiver.years_of_experience }} year{{ caregiver.years_of_experience|pluralize }} caring for pets</span>
+              <span class="caregiver-badge">📍 {{ caregiver.service_area }}</span>
+
+              <span class="caregiver-badge">🐾 {{ caregiver.years_of_experience }} year{{ caregiver.years_of_experience|pluralize }} caring for pets</span>
+
+              {% if caregiver.accepting_new_bookings %}
+                  <span class="caregiver-availability available">
+                      <span class="availability-dot"></span>
+                      Accepting new bookings
+                  </span>
+              {% else %}
+                  <span class="caregiver-availability unavailable">
+                      <span class="availability-dot"></span>
+                      Taking a little paws 🐾
+                  </span>
+              {% endif %}
           </div>
           {% if caregiver.bio %}<p class="caregiver-intro">{{ caregiver.bio }}</p>{% endif %}
           {% if caregiver.user_id and caregiver.user_id == request.user.id %}
@@ -138,13 +161,33 @@
     </div>
 
     <aside>
-      <div class="caregiver-booking-card">
-        <h2>Request care from {{ caregiver.name }}</h2>
-        <p>Pick a pet, a service, and a time. Your caregiver can accept or decline your request.</p>
-        <span class="caregiver-booking-placeholder">Booking requests coming soon</span>
-      </div>
-      {% comment %}<a class="caregiver-manage-link" href="{% url 'services' caregiver.pk %}">View all service listings →</a>{% endcomment %}
-    </aside>
+        <div class="caregiver-booking-card">
+          <h2>Request care from {{ caregiver.name }}</h2>
+
+          {% if caregiver.accepting_new_bookings %}
+            <p>
+              Pick a pet, a service, and a time.
+              Your caregiver can accept or decline your request.
+            </p>
+
+            <a
+              href="{% url 'bookings:booking_create' %}?caregiver={{ caregiver.pk }}"
+              class="caregiver-booking-button"
+            >
+              🐾 Request care
+            </a>
+          {% else %}
+            <p>
+              {{ caregiver.name }} is taking a little paws right now
+              and isn't accepting new booking requests.
+            </p>
+
+            <span class="caregiver-booking-placeholder">
+              💤 Currently unavailable
+            </span>
+          {% endif %}
+        </div>
+      </aside>
   </div>
 </div>
 {% endblock %}
