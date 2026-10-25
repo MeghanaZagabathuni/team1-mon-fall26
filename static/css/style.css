@@ -1985,3 +1985,34 @@ img.pet-initial-large {
   border-color: var(--line-strong);
   background-color: var(--input-bg);
 }
+
+.caregiver-availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.caregiver-availability.available {
+    background: #dff5e6;
+    color: #245c3d;
+    border-color: #b8e5c9;
+}
+
+.caregiver-availability.unavailable {
+    background: #f8e5df;
+    color: #805042;
+    border-color: #edcfc4;
+}
+
+.availability-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: currentColor;
+}
